@@ -1,7 +1,7 @@
 import argparse
 import sys
 import os
-
+import modules.blast as blast
 
 parser = argparse.ArgumentParser(description="Correlated mutations")
 
@@ -36,7 +36,5 @@ parser.add_argument('-o', '--output',
 
 args = parser.parse_args()
 
-if (args.infile2):
 
-else:
-
+blast.exec_blast(args.infile1, args.params)
