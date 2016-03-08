@@ -36,8 +36,15 @@ parser.add_argument('-o', '--output',
 
 args = parser.parse_args()
 
-modules.exec_blast(args.infile1, args.params, "file1")
+file1= modules.exec_blast(args.infile1, args.params, "file1")
+print ("blast finished...")
+multifasta1 = modules.parse_seq_XML(file1, "file1_blast")
 
 if args.infile2:
-	modules.exec_blast(args.infile2, args.params, "file2")
-#modules.clustalW(args.infile1, args.params)
+	file2= modules.exec_blast(args.infile2, args.params, "file2")
+	modules.parse_seq_XML(file2)#
+	
+if not args.infile2:
+	clustal_file=modules.clustalW(multifasta1)
+	module= modules.read_clustaw(clustal_file)
+	print (module)
