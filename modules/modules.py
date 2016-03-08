@@ -38,6 +38,21 @@ def parse_blast_conf(config_file):
 			evalue = line[2]
 	return (options)
 
+
+def parse_seq_XML(blast_xml):
+	hits = set()
+	for record in NCBIXML.parse(blast_xml):
+		for align in record.alignments:
+			hit_id = align.hit_id
+		blast_xml.close()
+        
+       
+	for hit_id in hits:
+		indexs = [i for i in xrange(len(hit_id)) if hit_id.find("|", n) == n]
+		gi_id = hit_id[indexs[0]:indexs[1]]
+		print(gi_id)
+
+
 def clustalW(infil, config_file):
 	clustalw2= r"/Applications/clustalw2"
 	cline = ClustalwCommandline(clustalw2, infile=infil)
