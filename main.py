@@ -1,7 +1,7 @@
 import argparse
 import sys
 import os
-import modules.blast as blast
+import modules.modules as modules
 
 parser = argparse.ArgumentParser(description="Correlated mutations")
 
@@ -23,7 +23,7 @@ parser.add_argument('-i2', '--input2',
 parser.add_argument('-p', '--param',
 			dest='params',
 			action='store',
-			default=None,
+			default='parameters.config',
 			required=False,
 			help='Parameters configuration file')
 
@@ -36,5 +36,8 @@ parser.add_argument('-o', '--output',
 
 args = parser.parse_args()
 
+modules.exec_blast(args.infile1, args.params, "file1")
 
-blast.exec_blast(args.infile1, args.params)
+if args.infile2:
+	modules.exec_blast(args.infile2, args.params, "file2")
+#modules.clustalW(args.infile1, args.params)
