@@ -64,7 +64,6 @@ def parse_seq_XML(blast_xml, output):
 def clustalW(infil):
 	clustalw2= r"/Applications/clustalw2"
 	cline = ClustalwCommandline(clustalw2, infile=infil, align="input", seqnos="ON", outorder="input", type="PROTEIN")
-	print (cline)
 	assert os.path.isfile(clustalw2), "Clustal W executable missing"
 	stdout, stderr = cline()
 

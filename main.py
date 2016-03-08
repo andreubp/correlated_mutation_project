@@ -43,8 +43,8 @@ multifasta1 = modules.parse_seq_XML(file1, "file1_blast")
 if args.infile2:
 	file2= modules.exec_blast(args.infile2, args.params, "file2")
 	modules.parse_seq_XML(file2)#
-	
+
 if not args.infile2:
-	clustal_file=modules.clustalW(multifasta1)
-	module= modules.read_clustaw(clustal_file)
+	modules.clustalW(multifasta1)
+	module= modules.read_clustaw("file1_blast.aln")
 	print (module)
