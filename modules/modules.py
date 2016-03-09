@@ -1,4 +1,5 @@
 import os
+import math
 from Bio.Blast.Applications import NcbiblastpCommandline as blastp
 from Bio import SeqIO, Entrez, AlignIO
 from Bio.Blast import NCBIWWW, NCBIXML
@@ -62,7 +63,7 @@ def parse_seq_XML(blast_xml, output):
 	blast_xml_op.close()
 
 def clustalW(infil):
-	clustalw2= r"/Applications/clustalw2"
+	clustalw2= r"/usr/bin/clustalw"
 	cline = ClustalwCommandline(clustalw2, infile=infil, align="input", seqnos="ON", outorder="input", type="PROTEIN")
 	assert os.path.isfile(clustalw2), "Clustal W executable missing"
 	stdout, stderr = cline()
@@ -70,5 +71,63 @@ def clustalW(infil):
 def read_clustaw(clustalw_file):
 	clustalw = open(clustalw_file, 'r')
 	align = AlignIO.read(clustalw, "clustal")
-	for record in align:
-		print (record.seq, record.id)
+	transposed = transpose_alignment(align)
+	return transposed
+
+def transpose_alignment(align):
+	index = range(len(align[0]))
+	transposed = list()
+	for i in index:
+		transposed.append(''.join([seq[i] for seq in align]))
+	return transposed
+
+
+def mutual_information(transposed):
+	mi = dict()
+	length = range(len(transposed))
+	for i in length:
+		#H(i) = -sum_x(P(x)ln2(P(x)))
+		entropy_i = entropy(transposed[i])	
+
+		for j in length:
+			entropy_j = entropy(transposed[j])
+			joint = joint_entropy(transposed[i], transposed[j])
+			mi = entropy_i + entropy_j - joint
+			print(i, transposed[i], j, transposed[j], entropy_i, entropy_j, joint, mi)
+			
+
+
+def entropy(column_string):
+	frequencies = dict()
+	total = len(column_string)
+	entropy = 0
+	for i in column_string:
+		if i in frequencies:
+			frequencies[i] +=1
+		else:
+			frequencies[i] = 1
+
+	for key in frequencies:
+		frequencies[key] /= total
+		entropy += frequencies[key]*math.log(frequencies[key], 2)
+	return -entropy
+
+
+def joint_entropy(column_i, column_j):
+	freq_ij = dict()
+	total = len(column_i)
+	entropy = 0
+	for index in range(total):
+		i = column_i[index]
+		j = column_j[index]
+		if i+j in freq_ij:
+			freq_ij[i+j] +=1
+		else:
+			freq_ij[i+j] = 1
+
+	for key in freq_ij:
+		freq_ij[key] /= total
+		entropy += freq_ij[key]*math.log(freq_ij[key], 2)
+	return -entropy
+
+
