@@ -1,3 +1,30 @@
+#!/usr/local/bin/python3
+
+                    #####################################
+                    #    correlated_mutation_project    #
+                    #####################################
+
+###############################################################################
+#              version2: This is the last stable version of main.             #
+# It includes a userfriendly paths to drive the function of the software.     #
+# It includes the possibility of calculing the mutual information scores from #
+# one or two sequence and extrapoled then the correlated mutation between the #
+# different positions of the sequence/s. Finally it allows to plot a Heat-Map #
+# about correlated mutation of each position on sequence.                     #
+# This program accepts one or two inputs witha FASTA format or raw sequence   #
+# that allow to do the first step of the program, that's a Blast              #
+###############################################################################
+
+                        ########################
+                        #        Authors:      #
+                        #     Andreu Bofill    #
+                        #    Marina Reixachs   #
+                        ########################
+
+########################
+#        Modules       #
+########################
+
 import argparse
 import sys
 import os

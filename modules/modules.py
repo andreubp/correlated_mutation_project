@@ -1,3 +1,24 @@
+#!/usr/local/bin/python3
+
+"""
+This is the documentation for correlated_mutation_project. The functions below are
+used in the execution of the different paths of main python. The main dependencies
+of these module are the sys, os, math and Bio packages but all of them should be
+present in a correct python instalation.
+This module only contain documented functions used in the main script.
+The authors of this module are Andreu Bofill and Marina Reixachs.
+"""
+
+                        ########################
+                        #        Authors:      #
+                        #     Andreu Bofill    #
+                        #    Marina Reixachs   #
+                        ########################
+
+########################
+#        Modules       #
+########################
+
 import os
 import math
 from Bio.Blast.Applications import NcbiblastpCommandline as blastp
@@ -92,7 +113,7 @@ def mutual_information(transposed):
 	length = range(len(transposed))
 	for i in length:
 		#H(i) = -sum_x(P(x)ln2(P(x)))
-		entropy_i = entropy(transposed[i])	
+		entropy_i = entropy(transposed[i])
 		mi_list = []
 		for j in length:
 			entropy_j = entropy(transposed[j])
@@ -155,9 +176,9 @@ def plot_heatmap(mi):
 
 	ax.invert_yaxis()
 	ax.xaxis.tick_top()
-	
+
 	plt.xticks(rotation=90)
-	
+
 	cb = plt.colorbar(heatmap)
 	cb.set_label('MI value')
 
@@ -166,7 +187,7 @@ def plot_heatmap(mi):
 	pdf.close()
 
 
-	
+
 
 def plotly_heatmap(mi):
 	tls.set_credentials_file(username="mars13", api_key="llj6ors56n")
