@@ -136,12 +136,12 @@ def joint_entropy(column_i, column_j):
 def plot_heatmap(mi):
 	column_labels = [i for i in range(len(mi))]
 	row_labels = [i for i in range(len(mi))]
-	data = mi
+	data = np.array(mi)
 
 	fig, ax = plt.subplots()
-	heatmap = ax.pcolor(data, cmap=plt.cm.Blues)
+	heatmap = ax.pcolor(data, cmap=plt.cm.jet)
 	
-	ax.set_xticks(np.arange(data.shape[0])+0.5, minor = False)
+	ax.set_xticks(np.arange(data.shape[0]), minor = False)
 	ax.set_yticks(np.arange(data.shape[1])+0.5, minor = False)
 
 	ax.invert_yaxis()
@@ -149,6 +149,8 @@ def plot_heatmap(mi):
 	
 	ax.set_xticklabels(row_labels, minor=False)		
 	ax.set_yticklabels(column_labels, minor=False)		
+	plt.xticks(np.arange(min(column_labels), max(column_labels), 20.0), rotation=90)
+
 	plt.show()
 
 
