@@ -28,7 +28,7 @@
 import argparse
 import sys
 import os
-import modules.modules as modules
+from modules.modules import *
 
 parser = argparse.ArgumentParser(description="Correlated mutations")
 
@@ -58,22 +58,25 @@ parser.add_argument('-o', '--output',
 			dest='outfile',
 			action='store',
 			default=None,
-			required=False,
+			required=True,
 			help='Prefix for output files')
 
 args = parser.parse_args()
 
-#file1= modules.exec_blast(args.infile1, args.params, "file1")
-#print ("blast finished...")
-#multifasta1 = modules.parse_seq_XML(file1, "file1_blast")
-
 if args.infile2:
-	file2= modules.exec_blast(args.infile2, args.params, "file2")
-	modules.parse_seq_XML(file2)
+	prefix_output = args.outfile+"1"
+	prefix_output_2 = args.outfile+"2"
 
-if not args.infile2:
-	modules.clustalW("file1_reduced.mfa")
-	module= modules.read_clustaw("file1_reduced.aln")
-	mi = modules.mutual_information(module)
-	modules.plot_heatmap(mi)
-	#modules.plotly_heatmap(mi)
+	file2= exec_blast(args.infile2, args.params, prefix_output_2)
+	multifasta2= parse_seq_XML(file2, prefix_output_2)
+
+else:
+	prefix_output = args.outfile
+	file1= exec_blast(args.infile1, args.params, prefix_output)
+	multifasta1 = parse_seq_XML(file1, prefix_output)
+
+	clustalW(multifasta1)
+	module= read_clustaw(prefix_output+".aln")
+	mi = mutual_information(module)
+	plot_heatmap(mi)
+	#plotly_heatmap(mi)
