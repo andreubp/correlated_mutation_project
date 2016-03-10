@@ -18,33 +18,34 @@ The authors of this module are Andreu Bofill and Marina Reixachs.
 ########################
 #        Modules       #
 ########################
-
-import os
-import math
+import os, math, numpy as np
 from Bio.Blast.Applications import NcbiblastpCommandline as blastp
 from Bio import SeqIO, Entrez, AlignIO
 from Bio.Blast import NCBIWWW, NCBIXML
 from Bio.Align.Applications import ClustalwCommandline
-import plotly.plotly as py
-import plotly.graph_objs as go
-import plotly.tools as tls
+import plotly.plotly as py, plotly.graph_objs as go, plotly.tools as tls
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from matplotlib.backends.backend_pdf import PdfPages
-import numpy as np
 
 def exec_blast(infile, config_file, out_name):
+	"""
+	From a sequence input, and given a configuration file, execute Blast software from NCBI web server and print the result in a xml output file
+	"""
 	db, evalue = parse_blast_conf(config_file)
 	fasta_string = SeqIO.read(infile, format="fasta")
 	result_handle = NCBIWWW.qblast("blastp", "nr", fasta_string.seq)
-	name = out_name + ".xml"
-	save_file = open(name, "w")
+	output= out_name + ".xml"
+	save_file = open(output, "w")
 	save_file.write(result_handle.read())
 	save_file.close()
 	result_handle.close()
-	return (name)
+	return (output)
 
 def parse_blast_conf(config_file):
+	"""
+	This method is used to read the configuration file to extract the necesary information for each part of the program
+	"""
 	op_config = open(config_file, "r")
 
 	for line in op_config:
@@ -52,24 +53,22 @@ def parse_blast_conf(config_file):
 			line = line.split("\t")
 			db = line[1]
 			evalue = line[2]
-	return(db, evalue)
+			return(db, evalue)
 
 def parse_seq_XML(blast_xml, output):
-	print ("PARSE XML...")
+	"""
+	Read the blast_xml file generated before and extract the sequence and the id of each sequence in Blast and save them to
+	multiple fasta file. It will allow ClustalW to generate a Multiple Sequence Alignment from all these sequence extracted.
+	"""
 	blast_xml_op = open (blast_xml, 'r')
 	hits = set()
 	outfile = output +".mfa"
 	op_outfile = open(outfile, 'w')
 	for record in NCBIXML.parse(blast_xml_op):
-		print ("ROUND...")
 		for align in record.alignments:
 			hits.add(align.hit_id,)
-#			for hsp in align.hsps:
-#				print (hsp.expect)
-#				print (hsp.query_end)
-#				print (hsp.query_start)
+#			for hsp in align.hsps: #				print (hsp.expect) #				print (hsp.query_end) #				print (hsp.query_start)
 			hit_id=align.hit_id.split("|")
-#			if hsp.expect >= "0.05":
 			efetch = Entrez.efetch(db="protein", id=hit_id[1], rettype="fasta")
 			for line in efetch:
 				id_info = line
@@ -83,36 +82,49 @@ def parse_seq_XML(blast_xml, output):
 				species = str(organism[0] + "_" + organism[1])
 			else:
 				species = str(organism[0] + "_" + "sp.")
-			op_outfile.write("> "+ species + "|"+ hit_id[1] + "| \n" + sequence + "\n")
+			sentence = "> "+ species + "|"+ hit_id[1] + "| \n" + sequence + "\n"
+			op_outfile.write(sentence)
 	op_outfile.close()
 	return (outfile)
 	blast_xml_op.close()
 
 def clustalW(infil):
-	clustalw2= r"/usr/bin/clustalw"
+	"""
+	This method run ClustalW software and extract a multiple sequence alignment (MSA) from a multiple fasta file. We
+	need to especify the path of the clustalW program in our computers in our configuration file.  The MSA is saved
+	in a .aln file.
+	"""
+	clustalw2= r"/Applications/clustalw2"
 	cline = ClustalwCommandline(clustalw2, infile=infil, align="input", seqnos="ON", outorder="input", type="PROTEIN")
 	assert os.path.isfile(clustalw2), "Clustal W executable missing"
 	stdout, stderr = cline()
 
 def read_clustaw(clustalw_file):
+	"""
+	Read the MSA generated from ClustalW and save it to a new variable. This method calls another method, transpose_alignemnt
+	mentioned below. It allows us to work with this alignemnt in a easier way.
+	"""
 	clustalw = open(clustalw_file, 'r')
 	align = AlignIO.read(clustalw, "clustal")
 	transposed = transpose_alignment(align)
 	return transposed
 
 def transpose_alignment(align):
+	"""
+	From a MSA, transpose all columns and rows, such that the columns in the alignment are saved as elements in a list. So
+	finally we have a list of columns as strings.
+	"""
 	index = range(len(align[0]))
 	transposed = list()
 	for i in index:
 		transposed.append(''.join([seq[i] for seq in align]))
 	return transposed
 
-
 def mutual_information(transposed):
 	"""
 	Calculates MI scores between all positions in a single protein or two different proteins
 	from the transposed MSA columns and returns a list with the scores for all possible pair
-	of positions. 
+	of positions.
 	MI = sum_i(sum_j( H(i) + H(j) - H(i,j) ))
 	"""
 	mi = []
@@ -172,16 +184,16 @@ def joint_entropy(column_i, column_j):
 def plot_heatmap(mi):
 	"""
 	Given a list with the MI scores for all possible pairs of residues in the protein(s) sequence(s)
-	plots a heatmap using matplotlib with the MI scores for each pair and saves it in PDF format. 
+	plots a heatmap using matplotlib with the MI scores for each pair and saves it in PDF format.
 	The axis represent the positions in the sequence and the legend includes the color scale for MI values.
 	"""
 	fig = plt.figure()
 	data = np.array(mi)
 	fig, ax = plt.subplots()
 	heatmap = ax.pcolor(data, cmap=plt.cm.jet)
-	
+
 	ax.tick_params(direction='out')
-	
+
 	majorLocator   = MultipleLocator(20)
 	majorFormatter = FormatStrFormatter('%d')
 	minorLocator   = MultipleLocator(1)
@@ -196,7 +208,7 @@ def plot_heatmap(mi):
 
 	ax.invert_yaxis()
 	ax.xaxis.tick_top()
-	
+
 	ax.set_xlim(0, len(mi))
 	ax.set_ylim(0, len(mi))
 
@@ -215,7 +227,7 @@ def plot_heatmap(mi):
 def plotly_heatmap(mi):
 	"""
 	Given a list with the MI scores for all possible pairs of residues in the protein(s) sequence(s)
-	creates a plotly heatmap. 
+	creates a plotly heatmap.
 	"""
 	tls.set_credentials_file(username="mars13", api_key="llj6ors56n")
 	data = [ go.Heatmap(
