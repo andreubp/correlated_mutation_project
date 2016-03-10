@@ -109,10 +109,15 @@ def transpose_alignment(align):
 
 
 def mutual_information(transposed):
+	"""
+	Calculates MI scores between all positions in a single protein or two different proteins
+	from the transposed MSA columns and returns a list with the scores for all possible pair
+	of positions. 
+	MI = sum_i(sum_j( H(i) + H(j) - H(i,j) ))
+	"""
 	mi = []
 	length = range(len(transposed))
 	for i in length:
-		#H(i) = -sum_x(P(x)ln2(P(x)))
 		entropy_i = entropy(transposed[i])
 		mi_list = []
 		for j in length:
@@ -124,6 +129,10 @@ def mutual_information(transposed):
 	return mi
 
 def entropy(column_string):
+	"""
+	Calculates the entropy of a single column(position) in the transposed MSA.
+	H(i) = -sum_x(P(x)ln2(P(x)))
+	"""
 	frequencies = dict()
 	total = len(column_string)
 	entropy = 0
@@ -140,6 +149,10 @@ def entropy(column_string):
 
 
 def joint_entropy(column_i, column_j):
+	"""
+	Calculates the joint entropy for two columns(positions) in the transposed MSA.
+	H(i,j) = -sum_x(sum_y( P(x,y)ln2(P(x,y)) ))
+	"""
 	freq_ij = dict()
 	total = len(column_i)
 	entropy = 0
@@ -157,11 +170,18 @@ def joint_entropy(column_i, column_j):
 	return -entropy
 
 def plot_heatmap(mi):
+	"""
+	Given a list with the MI scores for all possible pairs of residues in the protein(s) sequence(s)
+	plots a heatmap using matplotlib with the MI scores for each pair and saves it in PDF format. 
+	The axis represent the positions in the sequence and the legend includes the color scale for MI values.
+	"""
 	fig = plt.figure()
 	data = np.array(mi)
 	fig, ax = plt.subplots()
 	heatmap = ax.pcolor(data, cmap=plt.cm.jet)
-
+	
+	ax.tick_params(direction='out')
+	
 	majorLocator   = MultipleLocator(20)
 	majorFormatter = FormatStrFormatter('%d')
 	minorLocator   = MultipleLocator(1)
@@ -176,6 +196,9 @@ def plot_heatmap(mi):
 
 	ax.invert_yaxis()
 	ax.xaxis.tick_top()
+	
+	ax.set_xlim(0, len(mi))
+	ax.set_ylim(0, len(mi))
 
 	plt.xticks(rotation=90)
 
@@ -190,6 +213,10 @@ def plot_heatmap(mi):
 
 
 def plotly_heatmap(mi):
+	"""
+	Given a list with the MI scores for all possible pairs of residues in the protein(s) sequence(s)
+	creates a plotly heatmap. 
+	"""
 	tls.set_credentials_file(username="mars13", api_key="llj6ors56n")
 	data = [ go.Heatmap(
 			z=mi,
