@@ -8,11 +8,13 @@ import plotly.plotly as py
 import plotly.graph_objs as go
 import plotly.tools as tls
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+from matplotlib.backends.backend_pdf import PdfPages
 import numpy as np
 
 def exec_blast(infile, config_file, out_name):
 	db, evalue = parse_blast_conf(config_file)
-	fasta_string = SeqIO.read(infile, format="fasta")#
+	fasta_string = SeqIO.read(infile, format="fasta")
 	result_handle = NCBIWWW.qblast("blastp", "nr", fasta_string.seq)
 	name = out_name + ".xml"
 	save_file = open(name, "w")
@@ -134,24 +136,34 @@ def joint_entropy(column_i, column_j):
 	return -entropy
 
 def plot_heatmap(mi):
-	column_labels = [i for i in range(len(mi))]
-	row_labels = [i for i in range(len(mi))]
+	fig = plt.figure()
 	data = np.array(mi)
-
 	fig, ax = plt.subplots()
 	heatmap = ax.pcolor(data, cmap=plt.cm.jet)
-	
-	ax.set_xticks(np.arange(data.shape[0]), minor = False)
-	ax.set_yticks(np.arange(data.shape[1])+0.5, minor = False)
+
+	majorLocator   = MultipleLocator(20)
+	majorFormatter = FormatStrFormatter('%d')
+	minorLocator   = MultipleLocator(1)
+
+	ax.xaxis.set_major_locator(majorLocator)
+	ax.xaxis.set_major_formatter(majorFormatter)
+	ax.xaxis.set_minor_locator(minorLocator)
+
+	ax.yaxis.set_major_locator(majorLocator)
+	ax.yaxis.set_major_formatter(majorFormatter)
+	ax.yaxis.set_minor_locator(minorLocator)
 
 	ax.invert_yaxis()
 	ax.xaxis.tick_top()
 	
-	ax.set_xticklabels(row_labels, minor=False)		
-	ax.set_yticklabels(column_labels, minor=False)		
-	plt.xticks(np.arange(min(column_labels), max(column_labels), 20.0), rotation=90)
+	plt.xticks(rotation=90)
+	
+	cb = plt.colorbar(heatmap)
+	cb.set_label('MI value')
 
-	plt.show()
+	pdf = PdfPages('heatmap.pdf')
+	pdf.savefig(fig)
+	pdf.close()
 
 
 	

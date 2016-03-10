@@ -48,4 +48,5 @@ if not args.infile2:
 	modules.clustalW("file1_reduced.mfa")
 	module= modules.read_clustaw("file1_reduced.aln")
 	mi = modules.mutual_information(module)
-	modules.plotly_heatmap(mi)
+	modules.plot_heatmap(mi)
+	#modules.plotly_heatmap(mi)
