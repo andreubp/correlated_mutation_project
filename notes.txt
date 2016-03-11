@@ -1,0 +1,6 @@
+1) Blast 2 prot: el millor hit per cada espècie i mirar que estiguin a l'altra (paràmetre del programa, evalue per cada parella, tenir en compte el d'una i altra)
+2) N. seq en funció del limit d'evalue
+3) descartar posicions amb més d'un % de gaps
+4) al heatmap només posicions de la seq original (GAPS FORA)
+5) per guardar els fitxers modul: tmpfile
+
