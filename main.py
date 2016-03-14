@@ -11,7 +11,7 @@
 # one or two sequence and extrapoled then the correlated mutation between the #
 # different positions of the sequence/s. Finally it allows to plot a Heat-Map #
 # about correlated mutation of each position on sequence.                     #
-# This program accepts one or two inputs witha FASTA format or raw sequence   #
+# This program accepts one or two inputs with FASTA format or raw sequence    #
 # that allow to do the first step of the program, that's a Blast              #
 ###############################################################################
 
@@ -66,17 +66,18 @@ args = parser.parse_args()
 if args.infile2:
 	prefix_output = args.outfile+"1"
 	prefix_output_2 = args.outfile+"2"
-
+	
+	file1= exec_blast(args.infile1, args.params, prefix_output)
 	file2= exec_blast(args.infile2, args.params, prefix_output_2)
-	multifasta2= parse_seq_XML(file2, prefix_output_2)
+	multifasta1, multifasta2= get_sequences(blast_xml = file1, output = prefix_output_2, blast_xml_2 = file2)
 
 else:
 	prefix_output = args.outfile
 	file1= exec_blast(args.infile1, args.params, prefix_output)
-	multifasta1 = parse_seq_XML(file1, prefix_output)
+	multifasta1 = get_sequences(file1, prefix_output)
 
-	clustalW(multifasta1)
-	module= read_clustaw(prefix_output+".aln")
-	mi = mutual_information(module)
-	plot_heatmap(mi)
+	#clustalW(multifasta1)
+	#module= read_clustaw(prefix_output+".aln")
+	#mi = mutual_information(module)
+	#plot_heatmap(mi)
 	#plotly_heatmap(mi)

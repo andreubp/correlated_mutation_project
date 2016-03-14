@@ -54,39 +54,110 @@ def parse_blast_conf(config_file):
 			db = line[1]
 			evalue = line[2]
 			return(db, evalue)
+class BlastResult(object):
+	
+	def __init__(self, hit_id, organism, sequence, evalue, coverage):
+		self.hit = hit_id
+		self.evalue = evalue
+		self.coverage = coverage
+		self.species = organism
+		self.sequence = sequence
+	
+	def trim_coverage(self, cut_off):
+		if self.coverage >= cut_off:
+			return True
+		else:
+			return False
+		
 
-def parse_seq_XML(blast_xml, output):
+
+
+def parse_blast_XML(blast_xml):
 	"""
 	Read the blast_xml file generated before and extract the sequence and the id of each sequence in Blast and save them to
 	multiple fasta file. It will allow ClustalW to generate a Multiple Sequence Alignment from all these sequence extracted.
 	"""
 	blast_xml_op = open (blast_xml, 'r')
-	hits = set()
-	outfile = output +".mfa"
-	op_outfile = open(outfile, 'w')
 	for record in NCBIXML.parse(blast_xml_op):
 		for align in record.alignments:
-			hits.add(align.hit_id,)
-#			for hsp in align.hsps: #				print (hsp.expect) #				print (hsp.query_end) #				print (hsp.query_start)
-			hit_id=align.hit_id.split("|")
-			efetch = Entrez.efetch(db="protein", id=hit_id[1], rettype="fasta")
+			hit_id = align.hit_id.split("|")
+			prev_eval = 1
+			coverage = align.length / 390 ######arreglar per posar longitud sequencia
+			for hsp in align.hsps:				
+				if hsp.expect < prev_eval:
+					prev_eval = hsp.expect
+			efetch = Entrez.efetch(db="protein", id=hit_id, rettype="fasta")
 			for line in efetch:
-				id_info = line
-				break
-			sequence = ""
-			for line in efetch:
-				sequence += line.rstrip()
+				line = line.rstrip()
+				if line.startswith(">"):
+					id_info = line
+					sequence = ""
+				else:
+					sequence += line
+			sequence += line
+				
 			organism = id_info[id_info.find("[") + 1:id_info.find("]")]
 			organism = organism.split()
 			if len(organism) != 1:
 				species = str(organism[0] + "_" + organism[1])
-			else:
-				species = str(organism[0] + "_" + "sp.")
-			sentence = "> "+ species + "|"+ hit_id[1] + "| \n" + sequence + "\n"
+			
+			yield BlastResult(hit_id[1], species, sequence, prev_eval, coverage)
+	
+def get_sequences(blast_xml, output, blast_xml_2 = False):
+	
+	
+	species = set()
+	final_results = []
+	for result in parse_blast_XML(blast_xml):
+		if result.species not in species:
+			final_results.append(result)
+			species.add(result.species)
+		else:
+			[ result for element in final_results if element.species == result.species and result.evalue < element.evalue]
+	
+	if blast_xml_2 == False:	
+		outfile = output +".mfa"
+		op_outfile = open(outfile, 'w')
+		for element in final_results:
+			sentence = "> "+ element.species + "|"+ element.hit + "| \n" + element.sequence + "\n"
 			op_outfile.write(sentence)
-	op_outfile.close()
-	return (outfile)
-	blast_xml_op.close()
+		op_outfile.close()
+		return (outfile)
+
+	else:
+
+		species_2 = set()
+		final_results_2 = []
+		for result in parse_blast_XML(blast_xml_2):
+			if result.species not in species_2:
+				final_results_2.append(result)
+				species_2.add(result.species)
+			else:
+				[ result for element in final_results_2 if element.species == result.species and result.evalue < element.evalue]
+		
+		final_species = species.intersection(species_2)
+		print(species, species_2, final_species)
+		
+		filtered_results = [element for element in final_results if element.species in final_species]
+		filtered_results_2 = [element for element in final_results_2 if element.species in final_species]
+
+		outfile1 = output +"_1.mfa"
+		op_outfile1 = open(outfile1, 'w')
+		for element in filtered_results:
+			sentence = "> "+ element.species + "|"+ element.hit + "| \n" + element.sequence + "\n"
+			op_outfile1.write(sentence)
+		op_outfile1.close()
+	
+		outfile2 = output +"_2.mfa"
+		op_outfile2 = open(outfile2, 'w')
+		for element in filtered_results_2:
+			sentence = "> "+ element.species + "|"+ element.hit + "| \n" + element.sequence + "\n"
+			op_outfile2.write(sentence)
+		op_outfile2.close()
+	
+		return (outfile1, outfile2)
+				
+			
 
 def clustalW(infil):
 	"""
@@ -94,7 +165,7 @@ def clustalW(infil):
 	need to especify the path of the clustalW program in our computers in our configuration file.  The MSA is saved
 	in a .aln file.
 	"""
-	clustalw2= r"/Applications/clustalw2"
+	clustalw2= r"/usr/bin/clustalw2"
 	cline = ClustalwCommandline(clustalw2, infile=infil, align="input", seqnos="ON", outorder="input", type="PROTEIN")
 	assert os.path.isfile(clustalw2), "Clustal W executable missing"
 	stdout, stderr = cline()
@@ -208,18 +279,23 @@ def plot_heatmap(mi):
 
 	ax.invert_yaxis()
 	ax.xaxis.tick_top()
+	
+	###check which seq belongs to each axe
+	ax.set_xlabel('Seq 2')
+	ax.set_ylabel('Seq 1')
 
 	ax.set_xlim(0, len(mi))
-	ax.set_ylim(0, len(mi))
+	ax.set_ylim(len(mi), 0)
 
 	plt.xticks(rotation=90)
 
 	cb = plt.colorbar(heatmap)
 	cb.set_label('MI value')
 
-	pdf = PdfPages('heatmap.pdf')
-	pdf.savefig(fig)
-	pdf.close()
+	#pdf = PdfPages('heatmap.pdf')
+	#pdf.savefig(fig)
+	fig.savefig('heatmap.png')
+	#pdf.close()
 
 
 
