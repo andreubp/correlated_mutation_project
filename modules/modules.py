@@ -32,7 +32,7 @@ def exec_blast(infile, config_file, out_name):
 	"""
 	From a sequence input, and given a configuration file, execute Blast software from NCBI web server and print the result in a xml output file
 	"""
-	db, evalue = parse_blast_conf(config_file)
+	db, evalue = parse_config(config_file, "blast")
 	fasta_string = SeqIO.read(infile, format="fasta")
 	result_handle = NCBIWWW.qblast("blastp", "nr", fasta_string.seq)
 	output= out_name + ".xml"
@@ -42,34 +42,46 @@ def exec_blast(infile, config_file, out_name):
 	result_handle.close()
 	return (output)
 
-def parse_blast_conf(config_file):
+def parse_config (config_file, option):
 	"""
 	This method is used to read the configuration file to extract the necesary information for each part of the program
 	"""
 	op_config = open(config_file, "r")
+	if option == "blast":
+		for line in op_config:
+			if line.startswith("blast"):
+				line = line.split("\t")
+				db = line[1]
+				evalue = line[2]
+				return(db, evalue)
+	elif option == "clustalw":
+		for line in op_config:
+			if line.startswith ("clustalw"):
+				line = line.split("\t")
+				clustal_path = line[1]
+				return (clustal_path)
 
-	for line in op_config:
-		if line.startswith("blast"):
-			line = line.split("\t")
-			db = line[1]
-			evalue = line[2]
-			return(db, evalue)
+	elif option == "plotly":
+		for line in op_config:
+			if line.startswith("plotly"):
+				line = line.split("\t")
+				username = line[1]
+				api_key = line[2]
+				return (username, api_key)
+
 class BlastResult(object):
-	
 	def __init__(self, hit_id, organism, sequence, evalue, coverage):
 		self.hit = hit_id
 		self.evalue = evalue
 		self.coverage = coverage
 		self.species = organism
 		self.sequence = sequence
-	
+
 	def trim_coverage(self, cut_off):
 		if self.coverage >= cut_off:
 			return True
 		else:
 			return False
-		
-
 
 
 def parse_blast_XML(blast_xml):
@@ -83,7 +95,7 @@ def parse_blast_XML(blast_xml):
 			hit_id = align.hit_id.split("|")
 			prev_eval = 1
 			coverage = align.length / 390 ######arreglar per posar longitud sequencia
-			for hsp in align.hsps:				
+			for hsp in align.hsps:
 				if hsp.expect < prev_eval:
 					prev_eval = hsp.expect
 			efetch = Entrez.efetch(db="protein", id=hit_id, rettype="fasta")
@@ -95,17 +107,16 @@ def parse_blast_XML(blast_xml):
 				else:
 					sequence += line
 			sequence += line
-				
+
 			organism = id_info[id_info.find("[") + 1:id_info.find("]")]
 			organism = organism.split()
 			if len(organism) != 1:
 				species = str(organism[0] + "_" + organism[1])
-			
+
 			yield BlastResult(hit_id[1], species, sequence, prev_eval, coverage)
-	
+
+
 def get_sequences(blast_xml, output, blast_xml_2 = False):
-	
-	
 	species = set()
 	final_results = []
 	for result in parse_blast_XML(blast_xml):
@@ -114,8 +125,8 @@ def get_sequences(blast_xml, output, blast_xml_2 = False):
 			species.add(result.species)
 		else:
 			[ result for element in final_results if element.species == result.species and result.evalue < element.evalue]
-	
-	if blast_xml_2 == False:	
+
+	if blast_xml_2 == False:
 		outfile = output +".mfa"
 		op_outfile = open(outfile, 'w')
 		for element in final_results:
@@ -125,7 +136,6 @@ def get_sequences(blast_xml, output, blast_xml_2 = False):
 		return (outfile)
 
 	else:
-
 		species_2 = set()
 		final_results_2 = []
 		for result in parse_blast_XML(blast_xml_2):
@@ -134,10 +144,10 @@ def get_sequences(blast_xml, output, blast_xml_2 = False):
 				species_2.add(result.species)
 			else:
 				[ result for element in final_results_2 if element.species == result.species and result.evalue < element.evalue]
-		
+
 		final_species = species.intersection(species_2)
 		print(species, species_2, final_species)
-		
+
 		filtered_results = [element for element in final_results if element.species in final_species]
 		filtered_results_2 = [element for element in final_results_2 if element.species in final_species]
 
@@ -147,25 +157,26 @@ def get_sequences(blast_xml, output, blast_xml_2 = False):
 			sentence = "> "+ element.species + "|"+ element.hit + "| \n" + element.sequence + "\n"
 			op_outfile1.write(sentence)
 		op_outfile1.close()
-	
+
 		outfile2 = output +"_2.mfa"
 		op_outfile2 = open(outfile2, 'w')
 		for element in filtered_results_2:
 			sentence = "> "+ element.species + "|"+ element.hit + "| \n" + element.sequence + "\n"
 			op_outfile2.write(sentence)
 		op_outfile2.close()
-	
-		return (outfile1, outfile2)
-				
-			
 
-def clustalW(infil):
+		return (outfile1, outfile2)
+
+
+def clustalW(infil, config_file):
 	"""
 	This method run ClustalW software and extract a multiple sequence alignment (MSA) from a multiple fasta file. We
 	need to especify the path of the clustalW program in our computers in our configuration file.  The MSA is saved
 	in a .aln file.
 	"""
-	clustalw2= r"/usr/bin/clustalw2"
+	clustalw_path= parse_config(config_file, "clustalw")
+	clustalw2= r"clustalw_path"
+	#clustalw2= r'/Applications/clustalw2'
 	cline = ClustalwCommandline(clustalw2, infile=infil, align="input", seqnos="ON", outorder="input", type="PROTEIN")
 	assert os.path.isfile(clustalw2), "Clustal W executable missing"
 	stdout, stderr = cline()
@@ -189,7 +200,14 @@ def transpose_alignment(align):
 	transposed = list()
 	for i in index:
 		transposed.append(''.join([seq[i] for seq in align]))
-	return transposed
+	for column in transposed:
+		gap = 0
+		for el in column:
+			if el == "-":
+				gap += 1
+		if gap <= (len(column)/2):
+			transposed_gap.append(column)
+	return transposed_gap
 
 def mutual_information(transposed):
 	"""
@@ -279,7 +297,7 @@ def plot_heatmap(mi):
 
 	ax.invert_yaxis()
 	ax.xaxis.tick_top()
-	
+
 	###check which seq belongs to each axe
 	ax.set_xlabel('Seq 2')
 	ax.set_ylabel('Seq 1')
@@ -297,15 +315,13 @@ def plot_heatmap(mi):
 	fig.savefig('heatmap.png')
 	#pdf.close()
 
-
-
-
 def plotly_heatmap(mi):
 	"""
 	Given a list with the MI scores for all possible pairs of residues in the protein(s) sequence(s)
 	creates a plotly heatmap.
 	"""
-	tls.set_credentials_file(username="mars13", api_key="llj6ors56n")
+	(username, api_key)= parse_config(config_file, "plotly")
+	tls.set_credentials_file(username=username, api_key=api_key)
 	data = [ go.Heatmap(
 			z=mi,
 			x=[i for i in range(len(mi))],
