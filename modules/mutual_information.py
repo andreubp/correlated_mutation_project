@@ -21,8 +21,6 @@ The authors of this module are Andreu Bofill and Marina Reixachs.
 import os, math, numpy as np
 import plotly.plotly as py, plotly.graph_objs as go, plotly.tools as tls
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter
-from matplotlib.backends.backend_pdf import PdfPages
 from modules.parse_config import *
 
 
@@ -104,11 +102,12 @@ def plot_heatmap(mi):
 	The axis represent the positions in the sequence and the legend includes the color scale for MI values.
 	"""
 	fig = plt.figure()
-	plt.suptitle('MI heatmap', fontsize=14, fontweight='bold')
 	data = np.array(mi)
 	fig, ax = plt.subplots()
 	heatmap = ax.pcolor(data, cmap=plt.cm.jet)
 
+	fig.suptitle('MI heatmap', y= 1.5, fontsize=14, fontweight='bold')
+	
 	ax.invert_yaxis()
 	ax.xaxis.tick_top()
 
@@ -120,7 +119,7 @@ def plot_heatmap(mi):
 	ax.set_ylim(len(mi), 0)
 
 	xmajor_ticks = np.arange(0, len(mi[1]), 20)
-	xminor_ticks = np.arange(0, len(mi[1]), 5)
+	xminor_ticks = np.arange(0, len(mi[1]), 1)
 
 	ymajor_ticks = np.arange(0, len(mi), 20)
 	yminor_ticks = np.arange(0, len(mi), 1)
@@ -140,10 +139,7 @@ def plot_heatmap(mi):
 	cb = plt.colorbar(heatmap)
 	cb.set_label('MI value')
 
-	pdf = PdfPages('heatmap.pdf')
-	pdf.savefig(fig)
-	fig.savefig('heatmap.png')
-	pdf.close()
+	fig.savefig('heatmap.png', dpi = 700)
 
 def plotly_heatmap(mi):
 	"""
