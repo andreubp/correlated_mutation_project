@@ -81,8 +81,8 @@ else:
 	file1= exec_blast(args.infile1, args.params, prefix_output)
 	multifasta1 = get_sequences(file1, prefix_output)
 
-	#clustalW(multifasta1)
-	#module= read_clustaw(prefix_output+".aln")
-	#mi = mutual_information(module)
-	#plot_heatmap(mi)
+	clustalW("prova1.mfa", args.params)
+	module= read_clustaw(prefix_output+".aln")
+	mi = mutual_information(module)
+	plot_heatmap(mi)
 	#plotly_heatmap(mi)
