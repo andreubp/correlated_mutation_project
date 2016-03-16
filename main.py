@@ -28,7 +28,9 @@
 import argparse
 import sys
 import os
-from modules.modules import *
+from modules.blast import *
+from modules.clustalw import *
+from modules.mutual_information import *
 
 parser = argparse.ArgumentParser(description="Correlated mutations")
 
@@ -83,7 +85,7 @@ else:
 	#multifasta1 = get_sequences(file1, prefix_output)
 	multifasta1 = get_sequences(args.infile1, file1, prefix_output)
 
-	clustalW("prova.mfa", args.params)
+	clustalW("prova1.mfa", args.params)
 	module= read_clustalw(prefix_output+".aln")
 	mi = mutual_information(module)
 	plot_heatmap(mi)
