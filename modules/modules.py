@@ -116,7 +116,7 @@ def parse_blast_XML(blast_xml):
 			yield BlastResult(hit_id[1], species, sequence, prev_eval, coverage)
 
 
-def get_sequences(blast_xml, output, blast_xml_2 = False):
+def get_sequences(input1, blast_xml, output, blast_xml_2 = False, input2=False):
 	species = set()
 	final_results = []
 	for result in parse_blast_XML(blast_xml):
@@ -129,6 +129,11 @@ def get_sequences(blast_xml, output, blast_xml_2 = False):
 	if blast_xml_2 == False:
 		outfile = output +".mfa"
 		op_outfile = open(outfile, 'w')
+		infile = open(input1, 'r')
+		for line in infile:
+			op_outfile.write(line)
+		op_outfile.write("\n")
+
 		for element in final_results:
 			sentence = "> "+ element.species + "|"+ element.hit + "| \n" + element.sequence + "\n"
 			op_outfile.write(sentence)
@@ -153,6 +158,11 @@ def get_sequences(blast_xml, output, blast_xml_2 = False):
 
 		outfile1 = output +"_1.mfa"
 		op_outfile1 = open(outfile1, 'w')
+		infile1 = open(input1, 'r')
+		for line in infile1:
+			op_outfile1.write(line)
+		op_outfile.write("\n")
+
 		for element in filtered_results:
 			sentence = "> "+ element.species + "|"+ element.hit + "| \n" + element.sequence + "\n"
 			op_outfile1.write(sentence)
@@ -160,6 +170,11 @@ def get_sequences(blast_xml, output, blast_xml_2 = False):
 
 		outfile2 = output +"_2.mfa"
 		op_outfile2 = open(outfile2, 'w')
+		infile2 = open(input2, 'r')
+		for line in infile2:
+			op_outfile2.write(line)
+		op_outfile.write("\n")
+
 		for element in filtered_results_2:
 			sentence = "> "+ element.species + "|"+ element.hit + "| \n" + element.sequence + "\n"
 			op_outfile2.write(sentence)
@@ -174,14 +189,15 @@ def clustalW(infil, config_file):
 	need to especify the path of the clustalW program in our computers in our configuration file.  The MSA is saved
 	in a .aln file.
 	"""
-	clustalw_path= parse_config(config_file, "clustalw")
-	clustalw2= r clustalw_path
-	#clustalw2= r'/Applications/clustalw2'
+	#clustalw_path = parse_config(config_file, "clustalw")
+	#clustalw2= "'"+ clustalw_path + "'"
+
+	clustalw2= r'/Applications/clustalw2'
 	cline = ClustalwCommandline(clustalw2, infile=infil, align="input", seqnos="ON", outorder="input", type="PROTEIN")
 	assert os.path.isfile(clustalw2), "Clustal W executable missing"
 	stdout, stderr = cline()
 
-def read_clustaw(clustalw_file):
+def read_clustalw(clustalw_file):
 	"""
 	Read the MSA generated from ClustalW and save it to a new variable. This method calls another method, transpose_alignemnt
 	mentioned below. It allows us to work with this alignemnt in a easier way.
@@ -203,11 +219,18 @@ def transpose_alignment(align):
 		transposed.append(''.join([seq[i] for seq in align]))
 	for column in transposed:
 		gap = 0
-		for el in column:
+		if column[0] != "-":
+			transposed_gap.append(column)
+		else:
+			print ("HOLA"+column + "\n")
+
+	"""	for el in column:
 			if el == "-":
 				gap += 1
 		if gap <= (len(column)/2):
 			transposed_gap.append(column)
+	"""
+	print (transposed_gap)
 	return transposed_gap
 
 def mutual_information(transposed):

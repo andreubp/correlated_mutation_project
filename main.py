@@ -63,21 +63,23 @@ parser.add_argument('-o', '--output',
 
 args = parser.parse_args()
 
+
 if args.infile2:
 	prefix_output = args.outfile+"1"
-	prefix_output_2 = args.outfile+"2"#
+	prefix_output_2 = args.outfile+"2"
 
 	file1= exec_blast(args.infile1, args.params, prefix_output)
 	file2= exec_blast(args.infile2, args.params, prefix_output_2)
-	multifasta1, multifasta2= get_sequences(blast_xml = file1, output = prefix_output_2, blast_xml_2 = file2)#
+	multifasta1, multifasta2= get_sequences(blast_xml = file1, output = prefix_output_2, blast_xml_2 = file2)
 
 else:
 	prefix_output = args.outfile
 	file1= exec_blast(args.infile1, args.params, prefix_output)
-	multifasta1 = get_sequences(file1, prefix_output)
+	#multifasta1 = get_sequences(file1, prefix_output)
+	multifasta1 = get_sequences(args.infile1, file1, prefix_output)
 
-	clustalW("prova1.mfa", args.params)
-	module= read_clustaw(prefix_output+".aln")
+	clustalW("prova.mfa", args.params)
+	module= read_clustalw(prefix_output+".aln")
 	mi = mutual_information(module)
 	plot_heatmap(mi)
 	#plotly_heatmap(mi)
