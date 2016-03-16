@@ -129,7 +129,7 @@ def get_sequences(input1, blast_xml, output, blast_xml_2 = False, input2=False):
 		infile1 = open(input1, 'r')
 		for line in infile1:
 			op_outfile1.write(line)
-		op_outfile.write("\n")
+		op_outfile1.write("\n")
 
 		for element in filtered_results:
 			sentence = "> "+ element.species + "|"+ element.hit + "| \n" + element.sequence + "\n"
@@ -141,7 +141,7 @@ def get_sequences(input1, blast_xml, output, blast_xml_2 = False, input2=False):
 		infile2 = open(input2, 'r')
 		for line in infile2:
 			op_outfile2.write(line)
-		op_outfile.write("\n")
+		op_outfile2.write("\n")
 
 		for element in filtered_results_2:
 			sentence = "> "+ element.species + "|"+ element.hit + "| \n" + element.sequence + "\n"
