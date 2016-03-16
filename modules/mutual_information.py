@@ -95,7 +95,7 @@ def joint_entropy(column_i, column_j):
 		entropy += freq_ij[key]*math.log(freq_ij[key], 2)
 	return -entropy
 
-def plot_heatmap(mi):
+def plot_heatmap(mi, output):
 	"""
 	Given a list with the MI scores for all possible pairs of residues in the protein(s) sequence(s)
 	plots a heatmap using matplotlib with the MI scores for each pair and saves it in PDF format.
@@ -107,14 +107,14 @@ def plot_heatmap(mi):
 	heatmap = ax.pcolor(data, cmap=plt.cm.jet)
 
 	fig.suptitle('MI heatmap', y= 1.5, fontsize=14, fontweight='bold')
-	
+
 	ax.invert_yaxis()
 	ax.xaxis.tick_top()
 
 	ax.set_xlabel('Seq 2')
 	ax.set_ylabel('Seq 1')
-	ax.xaxis.set_label_position('top') 
-	
+	ax.xaxis.set_label_position('top')
+
 	ax.set_xlim(0, len(mi[0]))
 	ax.set_ylim(len(mi), 0)
 
@@ -133,13 +133,13 @@ def plot_heatmap(mi):
 	ax.set_yticks(yminor_ticks, minor = True)
 
 	ax.tick_params(which = 'both', direction = 'out')
-	
+
 	plt.xticks(rotation=90)
 
 	cb = plt.colorbar(heatmap)
 	cb.set_label('MI value')
 
-	fig.savefig('heatmap.png', dpi = 700)
+	fig.savefig(ourput, dpi = 700)
 
 def plotly_heatmap(mi):
 	"""

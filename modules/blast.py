@@ -18,7 +18,7 @@ The authors of this module are Andreu Bofill and Marina Reixachs.
 ########################
 #        Modules       #
 ########################
-import os, math
+import os, sys, math
 from Bio import SeqIO, Entrez, AlignIO
 from Bio.Blast import NCBIWWW, NCBIXML
 from modules.parse_config import *
@@ -98,7 +98,7 @@ def get_sequences(input1, blast_xml, output, config_file, blast_xml_2 = False, i
 			species.add(result.species)
 		else:
 			[ result for element in final_results if element.species == result.species and result.evalue < element.evalue]
-	print (len(final_results)) ################
+	print (results_id, len(final_results)) ################
 
 	if blast_xml_2 == False:
 		outfile = output +".mfa"
@@ -112,12 +112,15 @@ def get_sequences(input1, blast_xml, output, config_file, blast_xml_2 = False, i
 			sentence = "> "+ element.species + "|"+ element.hit + "| \n" + element.sequence + "\n"
 			op_outfile.write(sentence)
 		op_outfile.close()
+		print("%s hits found. After filtering, we have %s hits." % (results_id,len(final_results)), file=sys.stderr)
 		return (outfile)
 
 	else:
 		species_2 = set()
 		final_results_2 = []
+		results_id_2 = 0
 		for result in parse_blast_XML(blast_xml_2):
+			results_id_2 += 1
 			if result.species not in species_2:
 				final_results_2.append(result)
 				species_2.add(result.species)
@@ -129,8 +132,8 @@ def get_sequences(input1, blast_xml, output, config_file, blast_xml_2 = False, i
 		filtered_results = [element for element in final_results if element.species in final_species]
 		filtered_results_2 = [element for element in final_results_2 if element.species in final_species]
 
-		print (filtered_results) ##################
-
+		print("With the first protein, we found %s hits, and after filtering, %s." % (results_id,filtered_results), file=sys.stderr)
+		print("With the Second protein, we found %s hits, and after filtering, %s." % (results_id_2,filtered_results_2), file=sys.stderr)
 
 		outfile1 = output +"_1.mfa"
 		op_outfile1 = open(outfile1, 'w')
