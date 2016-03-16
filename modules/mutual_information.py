@@ -108,15 +108,14 @@ def write_mi_output(mi, output):
 	"""
 
 	op_outfile = open(output + "_mi.txt", "w")
-	op_outfile.write("#pos1\tpos2\tMI\n")
-	for pos1 in mi:
-		pos1_index = mi.index(pos1) + 1
-		for pos2 in pos1:
-			pos2_index = mi.index(pos2) + 1
-			op_outfile.wrtie("{}\t{}\t{}\n".format(pos1_index, pos2_index, pos2))
+	op_outfile.write("###correlated mutations output file\n###Contains mutual information values for each pair of sequences\n\n#pos1\tpos2\tMI\n")
+	for index1 in range(len(mi)):
+		position = mi[index1]
+		for index2 in range(len(position)):
+			op_outfile.write("%d\t%d\t%.5f\n" %(index1 + 1, index2 + 1, position[index2]))
 	op_outfile.close()
 
-def plot_heatmap(mi):
+def plot_heatmap(mi, output):
 	"""
 	Given a list with the MI scores for all possible pairs of residues in the protein(s) sequence(s)
 	plots a heatmap using matplotlib with the MI scores for each pair and saves it in PDF format.
@@ -128,14 +127,14 @@ def plot_heatmap(mi):
 	heatmap = ax.pcolor(data, cmap=plt.cm.jet)
 
 	fig.suptitle('MI heatmap', y= 1.5, fontsize=14, fontweight='bold')
-	
+
 	ax.invert_yaxis()
 	ax.xaxis.tick_top()
 
 	ax.set_xlabel('Seq 2')
 	ax.set_ylabel('Seq 1')
-	ax.xaxis.set_label_position('top') 
-	
+	ax.xaxis.set_label_position('top')
+
 	ax.set_xlim(0, len(mi[0]))
 	ax.set_ylim(len(mi), 0)
 
@@ -154,13 +153,13 @@ def plot_heatmap(mi):
 	ax.set_yticks(yminor_ticks, minor = True)
 
 	ax.tick_params(which = 'both', direction = 'out')
-	
+
 	plt.xticks(rotation=90)
 
 	cb = plt.colorbar(heatmap)
 	cb.set_label('MI value')
 
-	fig.savefig('heatmap.png', dpi = 700)
+	fig.savefig(ourput, dpi = 700)
 
 def plotly_heatmap(mi):
 	"""

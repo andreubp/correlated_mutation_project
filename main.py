@@ -69,11 +69,12 @@ if args.infile2:
 	prefix_output = args.outfile+"1"
 	prefix_output_2 = args.outfile+"2"
 
-	#file1= exec_blast(args.infile1, args.params, prefix_output)
-	#file2= exec_blast(args.infile2, args.params, prefix_output_2)
-	#multifasta1, multifasta2= get_sequences(args.infile1, file1, args.outfile, blast_xml_2 = file2, input2 = args.infile2)
-	#align = clustalW(multifasta1, args.params)
-	#align2 = clustalW(multifasta2, args.params)
+	file1= exec_blast(args.infile1, args.params, prefix_output)
+	file2= exec_blast(args.infile2, args.params, prefix_output_2)
+	multifastas=[multifasta1, multifasta2]= get_sequences(args.infile1, file1, args.outfile, blast_xml_2 = file2, input2 = args.infile2)
+
+	align = clustalW(multifasta1, args.params)
+	align2 = clustalW(multifasta2, args.params)
 	transposed = read_clustalw("prova_doble_1.aln")
 	transposed_2 = read_clustalw("prova_doble_2.aln")
 	mi = mutual_information(transposed= transposed, transposed_2 = transposed_2)
@@ -81,18 +82,19 @@ if args.infile2:
 
 else:
 	prefix_output = args.outfile
-	print("Executing Blast...", file=sys.stderr)
+	sys.stderr.write("Executing Blast...\n")
 	file1= exec_blast(args.infile1, args.params, prefix_output)
-	print("Blast finished correctly.", file=sys.stderr)
+	sys.stderr.write("Blast finished correctly.\n")
 	multifasta1 = get_sequences(args.infile1, file1, prefix_output,args.params)
 
-	print("Runnning ClustalW...", file=sys.stderr)
+	sys.stderr.write("Running ClustalW...\n")
 	clustalW(prefix_output+".mfa", args.params)
-	print("ClustalW finished correctly", file=sys.stderr)
+	sys.stderr.write("ClustalW finished correctly.\n")
 	module= read_clustalw(prefix_output+".aln")
-	print("Generating Mutual Information table", file=sys.stderr)
-	mi = mutual_information(module)
-	print("Ploting results...", file=sys.stderr)
+	sys.stderr.write("Generating Mutual Information table. You could see it on the next file: %s\n" %(prefix_output+".aln"))
+
+	mi = mutual_information(module, prefix_output+'.png')
+	sys.stderr.write("Plotting results...\n")
 	plot_heatmap(mi)
 	#plotly_heatmap(mi)
-	print("The program is done. See you!", file=sys.stderr)
+	sys.stderr.write("The program is done. See you!\n")
