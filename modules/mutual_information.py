@@ -104,43 +104,46 @@ def plot_heatmap(mi):
 	The axis represent the positions in the sequence and the legend includes the color scale for MI values.
 	"""
 	fig = plt.figure()
+	plt.suptitle('MI heatmap', fontsize=14, fontweight='bold')
 	data = np.array(mi)
 	fig, ax = plt.subplots()
 	heatmap = ax.pcolor(data, cmap=plt.cm.jet)
 
-	ax.tick_params(direction='out')
-
-	majorLocator   = MultipleLocator(20)
-	majorFormatter = FormatStrFormatter('%d')
-	minorLocator   = MultipleLocator(1)
-
-	ax.xaxis.set_major_locator(majorLocator)
-	ax.xaxis.set_major_formatter(majorFormatter)
-	ax.xaxis.set_minor_locator(minorLocator)
-
-	ax.yaxis.set_major_locator(majorLocator)
-	ax.yaxis.set_major_formatter(majorFormatter)
-	ax.yaxis.set_minor_locator(minorLocator)
-
 	ax.invert_yaxis()
 	ax.xaxis.tick_top()
 
-	###check which seq belongs to each axe
 	ax.set_xlabel('Seq 2')
 	ax.set_ylabel('Seq 1')
-
-	ax.set_xlim(0, len(mi[1]))
+	ax.xaxis.set_label_position('top') 
+	
+	ax.set_xlim(0, len(mi[0]))
 	ax.set_ylim(len(mi), 0)
 
+	xmajor_ticks = np.arange(0, len(mi[1]), 20)
+	xminor_ticks = np.arange(0, len(mi[1]), 5)
+
+	ymajor_ticks = np.arange(0, len(mi), 20)
+	yminor_ticks = np.arange(0, len(mi), 1)
+
+	ax.tick_params(axis = 'both', which = 'major', labelsize = 5)
+	ax.tick_params(axis = 'both', which = 'minor', labelsize = 0)
+
+	ax.set_xticks(xmajor_ticks)
+	ax.set_xticks(xminor_ticks, minor = True)
+	ax.set_yticks(ymajor_ticks)
+	ax.set_yticks(yminor_ticks, minor = True)
+
+	ax.tick_params(which = 'both', direction = 'out')
+	
 	plt.xticks(rotation=90)
 
 	cb = plt.colorbar(heatmap)
 	cb.set_label('MI value')
 
-	#pdf = PdfPages('heatmap.pdf')
-	#pdf.savefig(fig)
+	pdf = PdfPages('heatmap.pdf')
+	pdf.savefig(fig)
 	fig.savefig('heatmap.png')
-	#pdf.close()
+	pdf.close()
 
 def plotly_heatmap(mi):
 	"""

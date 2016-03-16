@@ -71,7 +71,7 @@ if args.infile2:
 
 	#file1= exec_blast(args.infile1, args.params, prefix_output)
 	#file2= exec_blast(args.infile2, args.params, prefix_output_2)
-	#multifasta1, multifasta2= get_sequences(blast_xml = file1, output = args.outfile, blast_xml_2 = file2)
+	#multifasta1, multifasta2= get_sequences(args.infile1, file1, args.outfile, blast_xml_2 = file2, input2 = args.infile2)
 	#align = clustalW(multifasta1, args.params)
 	#align2 = clustalW(multifasta2, args.params)
 	transposed = read_clustalw("prova_doble_1.aln")
