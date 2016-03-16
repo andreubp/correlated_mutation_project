@@ -99,15 +99,15 @@ def joint_entropy(column_i, column_j):
 def write_mi_output(mi, output):
 	"""
 	From the given list of list with the mutual information values writes a tab separated format output such that:
-		
+
 		position_i	position_j	mi_value
-	
+
 	When the input is a single protein both position columns will refer to the same protein. If two different proteins
 	are given as input, the first position column will refer to positions in the first protein and the second column to
-	positions in the second protein. 
+	positions in the second protein.
 	"""
 
-	op_outfile = open(output + "_mi.txt", "w")
+	op_outfile = open(output, "w")
 	op_outfile.write("###correlated mutations output file\n###Contains mutual information values for each pair of sequences\n\n#pos1\tpos2\tMI\n")
 	for index1 in range(len(mi)):
 		position = mi[index1]
