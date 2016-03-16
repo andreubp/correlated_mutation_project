@@ -31,6 +31,7 @@ import os
 from modules.blast import *
 from modules.clustalw import *
 from modules.mutual_information import *
+from modules.parse_config import *
 
 parser = argparse.ArgumentParser(description="Correlated mutations")
 
@@ -66,35 +67,56 @@ parser.add_argument('-o', '--output',
 args = parser.parse_args()
 
 if args.infile2:
-	prefix_output = args.outfile+"1"
-	prefix_output_2 = args.outfile+"2"
+	root = parse_config(args.params, "root")
+	prefix_output = root.rstrip() + args.outfile+"_1"
+	prefix_output_2 = root.rstrip() +args.outfile+"_2"
+	prefix = args.outfile+"_1"
+	prefix_2 =args.outfile+"_2"
+	sys.stderr.write("You have TWO protein sequence into the input and they are saved in all this program with these next prefixes:\n\t%s\n\t%s\n" %(prefix, prefix_2))
 
+	sys.stderr.write("Executing Blast for the %s...\n" %(prefix))
 	file1= exec_blast(args.infile1, args.params, prefix_output)
+	sys.stderr.write("\tBlast finished correctly.\n")
+	sys.stderr.write("Executing Blast for the %s...\n" %(prefix_2))
 	file2= exec_blast(args.infile2, args.params, prefix_output_2)
-	multifastas=[multifasta1, multifasta2]= get_sequences(args.infile1, file1, args.outfile, blast_xml_2 = file2, input2 = args.infile2)
+	sys.stderr.write("\tBlast finished correctly.\n")
 
-	align = clustalW(multifasta1, args.params)
-	align2 = clustalW(multifasta2, args.params)
-	transposed = read_clustalw("prova_doble_1.aln")
-	transposed_2 = read_clustalw("prova_doble_2.aln")
+	multifasta1, multifasta2 = get_sequences(args.infile1, file1, args.outfile, args.params, blast_xml_2 = file2, input2 = args.infile2)
+	sys.stderr.write("Running ClustalW for the %s...\n" %(prefix))
+	align = clustalW(multifasta1, args.params, prefix_output+".aln")
+	sys.stderr.write("\tClustalW finished correctly.\n")
+	sys.stderr.write("Running ClustalW for the %s...\n" %(prefix_2))
+	align2 = clustalW(multifasta2, args.params, prefix_output_2+".aln")
+	sys.stderr.write("\tClustalW finished correctly.\n")
+	transposed = read_clustalw(prefix_output+".aln")
+	transposed_2 = read_clustalw(prefix_output_2+".aln")
+	sys.stderr.write("Generating Mutual Information table... You could see it in a few seconds in the next file: %s\n" %(prefix_output+".aln"))
 	mi = mutual_information(transposed= transposed, transposed_2 = transposed_2)
-	plot_heatmap(mi)
+	sys.stderr.write("Plotting results...\n")
+	plot_heatmap(mi, prefix_output+'.png')
 
 else:
-	prefix_output = args.outfile
+	root = parse_config(args.params, "root")
+	prefix_output = root.rstrip() + args.outfile
+	prefix = args.outfile
+
+	sys.stderr.write("You have only ONE protein sequence into the input with this next prefix:\n\t%s\n" %(prefix))
+
 	sys.stderr.write("Executing Blast...\n")
 	file1= exec_blast(args.infile1, args.params, prefix_output)
 	sys.stderr.write("Blast finished correctly.\n")
 	multifasta1 = get_sequences(args.infile1, file1, prefix_output,args.params)
 
 	sys.stderr.write("Running ClustalW...\n")
-	clustalW(prefix_output+".mfa", args.params)
+	clustalW(prefix_output+".mfa", args.params, prefix_output+".aln")
 	sys.stderr.write("ClustalW finished correctly.\n")
 	module= read_clustalw(prefix_output+".aln")
-	sys.stderr.write("Generating Mutual Information table. You could see it on the next file: %s\n" %(prefix_output+".aln"))
+	sys.stderr.write("Generating Mutual Information table. You could see it in a few seconds in the next file: %s\n" %(prefix_output+".aln"))
 
-	mi = mutual_information(module, prefix_output+'.png')
+	mi = mutual_information(module)
 	sys.stderr.write("Plotting results...\n")
-	plot_heatmap(mi)
+	plot_heatmap(mi,prefix_output+'.png')
 	#plotly_heatmap(mi)
-	sys.stderr.write("The program is done. See you!\n")
+	sys.stderr.write("All the files generated in this program are saved on:\n%s\n" %(prefix_output))
+
+sys.stderr.write("The program is done. See you!\n")

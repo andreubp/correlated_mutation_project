@@ -98,7 +98,6 @@ def get_sequences(input1, blast_xml, output, config_file, blast_xml_2 = False, i
 			species.add(result.species)
 		else:
 			[ result for element in final_results if element.species == result.species and result.evalue < element.evalue]
-	print (results_id, len(final_results)) ################
 
 	if blast_xml_2 == False:
 		outfile = output +".mfa"
@@ -119,7 +118,7 @@ def get_sequences(input1, blast_xml, output, config_file, blast_xml_2 = False, i
 		species_2 = set()
 		final_results_2 = []
 		results_id_2 = 0
-		for result in parse_blast_XML(blast_xml_2):
+		for result in parse_blast_XML(blast_xml_2, config_file):
 			results_id_2 += 1
 			if result.species not in species_2:
 				final_results_2.append(result)
@@ -132,8 +131,8 @@ def get_sequences(input1, blast_xml, output, config_file, blast_xml_2 = False, i
 		filtered_results = [element for element in final_results if element.species in final_species]
 		filtered_results_2 = [element for element in final_results_2 if element.species in final_species]
 
-		print("With the first protein, we found %s hits, and after filtering, %s." % (results_id,filtered_results), file=sys.stderr)
-		print("With the Second protein, we found %s hits, and after filtering, %s." % (results_id_2,filtered_results_2), file=sys.stderr)
+		print("With the first protein, we found %s hits, and after filtering, %s." % (results_id,len(filtered_results)), file=sys.stderr)
+		print("With the Second protein, we found %s hits, and after filtering, %s." % (results_id_2,len(filtered_results_2)), file=sys.stderr)
 
 		outfile1 = output +"_1.mfa"
 		op_outfile1 = open(outfile1, 'w')

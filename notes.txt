@@ -1,13 +1,18 @@
 	- Blast 2 prot: el millor hit per cada espècie i mirar que estiguin a l'altra (paràmetre del programa, evalue per cada parella, tenir en compte el d'una i 		altra)
 	- descartar posicions amb més d'un % de gaps o eliminar posicions en què a la nostra seq tenim un gap, doncs al heatmap només posicions de la seq original 		(GAPS FORA)
-	- N. seq en funció del limit d'evalue, quan treballem amb una sola prot, posar cutoff perquè no ens ho agafi tot.
+	- N. seq en funció del limit d'evalue, quan treballem amb una sola prot, 		posar cutoff perquè no ens ho agafi tot.
 
 	- Email Entrez al .config.
 
-+ Per guardar els fitxers modul: tmpfile
+	- Crear fitxer output amb MI scores.
 
-+ Crear fitxer output amb MI scores.
+	- Solucionar noms d’outputs + nom heatmap
 
-+ Solucionar noms d’outputs + nom heatmap
+	- Per guardar els fitxers modul: tmpfile
+
++ try, except, stderr
++ clustalw
+
+
 
 

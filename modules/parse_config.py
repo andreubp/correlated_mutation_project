@@ -33,7 +33,7 @@ def parse_config (config_file, option):
 				db = line[1]
 				evalue = line[2]
 				return(db, evalue)
-				
+
 	elif option == "clustalw":
 		for line in op_config:
 			if line.startswith ("clustalw"):
@@ -55,3 +55,9 @@ def parse_config (config_file, option):
 				line = line.split("\t")
 				mail = line[1]
 				return (mail)
+	elif option == "root":
+		for line in op_config:
+			if line.startswith("root"):
+				line = line.split("\t")
+				root = line[1]
+				return (root)

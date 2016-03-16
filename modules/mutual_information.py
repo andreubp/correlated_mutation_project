@@ -139,7 +139,7 @@ def plot_heatmap(mi, output):
 	cb = plt.colorbar(heatmap)
 	cb.set_label('MI value')
 
-	fig.savefig(ourput, dpi = 700)
+	fig.savefig(output, dpi = 700)
 
 def plotly_heatmap(mi):
 	"""
