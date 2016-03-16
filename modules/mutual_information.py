@@ -54,6 +54,7 @@ def mutual_information(transposed, transposed_2 = False):
 			mi.append(mi_list)
 	return mi
 
+
 def entropy(column_string):
 	"""
 	Calculates the entropy of a single column(position) in the transposed MSA.
@@ -94,6 +95,26 @@ def joint_entropy(column_i, column_j):
 		freq_ij[key] /= total
 		entropy += freq_ij[key]*math.log(freq_ij[key], 2)
 	return -entropy
+
+def write_mi_output(mi, output):
+	"""
+	From the given list of list with the mutual information values writes a tab separated format output such that:
+		
+		position_i	position_j	mi_value
+	
+	When the input is a single protein both position columns will refer to the same protein. If two different proteins
+	are given as input, the first position column will refer to positions in the first protein and the second column to
+	positions in the second protein. 
+	"""
+
+	op_outfile = open(output + "_mi.txt", "w")
+	op_outfile.write("#pos1\tpos2\tMI\n")
+	for pos1 in mi:
+		pos1_index = mi.index(pos1) + 1
+		for pos2 in pos1:
+			pos2_index = mi.index(pos2) + 1
+			op_outfile.wrtie("{}\t{}\t{}\n".format(pos1_index, pos2_index, pos2))
+	op_outfile.close()
 
 def plot_heatmap(mi):
 	"""
