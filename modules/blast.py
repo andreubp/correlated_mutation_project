@@ -44,7 +44,7 @@ def exec_blast(infile, config_file, out_name):
 	"""
 	db, evalue = parse_config(config_file, "blast")
 	fasta_string = SeqIO.read(infile, format="fasta")
-	result_handle = NCBIWWW.qblast("blastp", "nr", fasta_string.seq)
+	result_handle = NCBIWWW.qblast("blastp", db, fasta_string.seq)
 	output= out_name + ".xml"
 	save_file = open(output, "w")
 	save_file.write(result_handle.read())
@@ -52,13 +52,14 @@ def exec_blast(infile, config_file, out_name):
 	result_handle.close()
 	return (output)
 
-def parse_blast_XML(blast_xml):
+def parse_blast_XML(blast_xml, config_file):
 	"""
 	Read the blast_xml file generated before and extract the sequence and the id of each sequence in Blast and save them to
 	multiple fasta file. It will allow ClustalW to generate a Multiple Sequence Alignment from all these sequence extracted.
 	"""
 	blast_xml_op = open (blast_xml, 'r')
-	Entrez.email = 'correlated_mutation@example.com'
+	Entrez.email = parse_config(config_file, "email")
+	db, evalue = parse_config(config_file, "blast")
 
 	for record in NCBIXML.parse(blast_xml_op):
 		for align in record.alignments:
@@ -83,17 +84,21 @@ def parse_blast_XML(blast_xml):
 			if len(organism) != 1:
 				species = str(organism[0] + "_" + organism[1])
 
-			yield BlastResult(hit_id[1], species, sequence, prev_eval, coverage)
+			if prev_eval <= float(evalue):
+				yield BlastResult(hit_id[1], species, sequence, prev_eval, coverage)
 
-def get_sequences(input1, blast_xml, output, blast_xml_2 = False, input2=False):
+def get_sequences(input1, blast_xml, output, config_file, blast_xml_2 = False, input2=False):
 	species = set()
 	final_results = []
-	for result in parse_blast_XML(blast_xml):
+	results_id = 0
+	for result in parse_blast_XML(blast_xml, config_file):
+		results_id += 1
 		if result.species not in species:
 			final_results.append(result)
 			species.add(result.species)
 		else:
 			[ result for element in final_results if element.species == result.species and result.evalue < element.evalue]
+	print (len(final_results)) ################
 
 	if blast_xml_2 == False:
 		outfile = output +".mfa"
@@ -123,6 +128,9 @@ def get_sequences(input1, blast_xml, output, blast_xml_2 = False, input2=False):
 
 		filtered_results = [element for element in final_results if element.species in final_species]
 		filtered_results_2 = [element for element in final_results_2 if element.species in final_species]
+
+		print (filtered_results) ##################
+
 
 		outfile1 = output +"_1.mfa"
 		op_outfile1 = open(outfile1, 'w')

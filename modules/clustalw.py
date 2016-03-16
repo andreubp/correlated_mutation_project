@@ -30,11 +30,9 @@ def clustalW(infil, config_file):
 	in a .aln file.
 	"""
 	#clustalw_path = parse_config(config_file, "clustalw")
-	#clustalw2= "'"+ clustalw_path + "'"
-	clustalw2= r'/Applications/clustalw2'
-
-	cline = ClustalwCommandline(clustalw2, infile=infil, align="input", seqnos="ON", outorder="input", type="PROTEIN")
-	assert os.path.isfile(clustalw2), "Clustal W executable missing"
+	clustalw_path=r"/Applications/clustalw2"
+	cline = ClustalwCommandline(clustalw_path, infile=infil, align="input", seqnos="ON", outorder="input", type="PROTEIN")
+	assert os.path.isfile(clustalw_path), "Clustal W executable missing"
 	stdout, stderr = cline()
 
 def read_clustalw(clustalw_file):
@@ -61,14 +59,10 @@ def transpose_alignment(align):
 		gap = 0
 		if column[0] != "-":
 			transposed_gap.append(column)
-		else:
-			print ("HOLA"+column + "\n")
-
 	"""	for el in column:
 			if el == "-":
 				gap += 1
 		if gap <= (len(column)/2):
 			transposed_gap.append(column)
 	"""
-	print (transposed_gap)
 	return transposed_gap
