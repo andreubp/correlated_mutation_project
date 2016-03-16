@@ -175,7 +175,7 @@ def clustalW(infil, config_file):
 	in a .aln file.
 	"""
 	clustalw_path= parse_config(config_file, "clustalw")
-	clustalw2= r"clustalw_path"
+	clustalw2= r clustalw_path
 	#clustalw2= r'/Applications/clustalw2'
 	cline = ClustalwCommandline(clustalw2, infile=infil, align="input", seqnos="ON", outorder="input", type="PROTEIN")
 	assert os.path.isfile(clustalw2), "Clustal W executable missing"
@@ -197,6 +197,7 @@ def transpose_alignment(align):
 	finally we have a list of columns as strings.
 	"""
 	index = range(len(align[0]))
+	transposed_gap = list()
 	transposed = list()
 	for i in index:
 		transposed.append(''.join([seq[i] for seq in align]))
