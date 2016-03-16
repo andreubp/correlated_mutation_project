@@ -90,10 +90,11 @@ if args.infile2:
 	sys.stderr.write("\tClustalW finished correctly.\n")
 	transposed = read_clustalw(prefix_output+".aln")
 	transposed_2 = read_clustalw(prefix_output_2+".aln")
-	sys.stderr.write("Generating Mutual Information table... You could see it in a few seconds in the next file: %s\n" %(prefix_output+".aln"))
+	sys.stderr.write("Generating Mutual Information table... You could see it in a few seconds in the next file: %s\n" %(prefix_output+"_mi.tsv"))
 	mi = mutual_information(transposed= transposed, transposed_2 = transposed_2)
+	write_mi_output(mi, prefix_output + "_mi.tsv")
 	sys.stderr.write("Plotting results...\n")
-	plot_heatmap(mi, prefix_output+'.png')
+	plot_heatmap(mi, prefix_output+".png")
 
 else:
 	root = parse_config(args.params, "root")
@@ -111,9 +112,9 @@ else:
 	clustalW(prefix_output+".mfa", args.params, prefix_output+".aln")
 	sys.stderr.write("ClustalW finished correctly.\n")
 	module= read_clustalw(prefix_output+".aln")
-	sys.stderr.write("Generating Mutual Information table. You could see it in a few seconds in the next file: %s\n" %(prefix_output+".aln"))
-
+	sys.stderr.write("Generating Mutual Information table. You could see it in a few seconds in the next file: %s\n" %(prefix_output+"_mi.tsv"))
 	mi = mutual_information(module)
+	write_mi_output(mi, prefix_output + "_mi.tsv")
 	sys.stderr.write("Plotting results...\n")
 	plot_heatmap(mi,prefix_output+'.png')
 	#plotly_heatmap(mi)
