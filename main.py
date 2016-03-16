@@ -68,10 +68,15 @@ if args.infile2:
 	prefix_output = args.outfile+"1"
 	prefix_output_2 = args.outfile+"2"
 
-	file1= exec_blast(args.infile1, args.params, prefix_output)
-	file2= exec_blast(args.infile2, args.params, prefix_output_2)
-	multifasta1, multifasta2= get_sequences(blast_xml = file1, output = prefix_output_2, blast_xml_2 = file2)
-
+	#file1= exec_blast(args.infile1, args.params, prefix_output)
+	#file2= exec_blast(args.infile2, args.params, prefix_output_2)
+	#multifasta1, multifasta2= get_sequences(blast_xml = file1, output = args.outfile, blast_xml_2 = file2)
+	#align = clustalW(multifasta1, args.params)
+	#align2 = clustalW(multifasta2, args.params)
+	transposed = read_clustalw("prova_doble_1.aln")
+	transposed_2 = read_clustalw("prova_doble_2.aln")
+	mi = mutual_information(transposed= transposed, transposed_2 = transposed_2)
+	plot_heatmap(mi)
 else:
 	prefix_output = args.outfile
 	file1= exec_blast(args.infile1, args.params, prefix_output)

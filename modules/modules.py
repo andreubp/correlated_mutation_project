@@ -151,7 +151,6 @@ def get_sequences(input1, blast_xml, output, blast_xml_2 = False, input2=False):
 				[ result for element in final_results_2 if element.species == result.species and result.evalue < element.evalue]
 
 		final_species = species.intersection(species_2)
-		print(species, species_2, final_species)
 
 		filtered_results = [element for element in final_results if element.species in final_species]
 		filtered_results_2 = [element for element in final_results_2 if element.species in final_species]
@@ -191,8 +190,8 @@ def clustalW(infil, config_file):
 	"""
 	#clustalw_path = parse_config(config_file, "clustalw")
 	#clustalw2= "'"+ clustalw_path + "'"
-
 	clustalw2= r'/Applications/clustalw2'
+
 	cline = ClustalwCommandline(clustalw2, infile=infil, align="input", seqnos="ON", outorder="input", type="PROTEIN")
 	assert os.path.isfile(clustalw2), "Clustal W executable missing"
 	stdout, stderr = cline()
@@ -233,7 +232,7 @@ def transpose_alignment(align):
 	print (transposed_gap)
 	return transposed_gap
 
-def mutual_information(transposed):
+def mutual_information(transposed, transposed_2 = False):
 	"""
 	Calculates MI scores between all positions in a single protein or two different proteins
 	from the transposed MSA columns and returns a list with the scores for all possible pair
@@ -245,12 +244,22 @@ def mutual_information(transposed):
 	for i in length:
 		entropy_i = entropy(transposed[i])
 		mi_list = []
-		for j in length:
-			entropy_j = entropy(transposed[j])
-			joint = joint_entropy(transposed[i], transposed[j])
-			mi_calc = entropy_i + entropy_j - joint
-			mi_list.append(mi_calc)
-		mi.append(mi_list)
+		if transposed_2 == False:
+			for j in length:
+				entropy_j = entropy(transposed[j])
+				joint = joint_entropy(transposed[i], transposed[j])
+				mi_calc = entropy_i + entropy_j - joint
+				mi_list.append(mi_calc)
+			mi.append(mi_list)
+
+		else:
+			length_2 = range(len(transposed_2))
+			for j in length_2:
+				entropy_j = entropy(transposed_2[j])
+				joint = joint_entropy(transposed[i], transposed_2[j])
+				mi_calc = entropy_i + entropy_j - joint
+				mi_list.append(mi_calc)
+			mi.append(mi_list)
 	return mi
 
 def entropy(column_string):
@@ -326,7 +335,7 @@ def plot_heatmap(mi):
 	ax.set_xlabel('Seq 2')
 	ax.set_ylabel('Seq 1')
 
-	ax.set_xlim(0, len(mi))
+	ax.set_xlim(0, len(mi[1]))
 	ax.set_ylim(len(mi), 0)
 
 	plt.xticks(rotation=90)
