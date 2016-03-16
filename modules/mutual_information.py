@@ -167,7 +167,7 @@ def plotly_heatmap(mi, output, config_file):
 	creates a plotly heatmap.
 	"""
 	(username, api_key)= parse_config(config_file, "plotly")
-	tls.set_credentials_file(username=username, api_key=api_key)
+	tls.set_credentials_file(username=username.strip(), api_key=api_key.strip())
 	data = [ go.Heatmap(
 			z=mi,
 			x=[i for i in range(len(mi))],
