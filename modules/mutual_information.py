@@ -161,7 +161,7 @@ def plot_heatmap(mi, output):
 
 	fig.savefig(output, dpi = 700)
 
-def plotly_heatmap(mi):
+def plotly_heatmap(mi, output, config_file):
 	"""
 	Given a list with the MI scores for all possible pairs of residues in the protein(s) sequence(s)
 	creates a plotly heatmap.
@@ -172,4 +172,4 @@ def plotly_heatmap(mi):
 			z=mi,
 			x=[i for i in range(len(mi))],
 			y= [i for i in range(len(mi))]) ]
-	plot_url = py.plot(data, filename = 'mi_heatmap')
+	plot_url = py.plot(data, filename = output)

@@ -64,6 +64,13 @@ parser.add_argument('-o', '--output',
 			required=True,
 			help='Prefix for output files')
 
+parser.add_argument('-hm', '--heatmap',
+			dest='heatmap',
+			action='store',
+			default="png",
+			required=False,
+			help='Heatmap program options: png or plotly')
+
 args = parser.parse_args()
 
 if args.infile2:
@@ -116,8 +123,13 @@ else:
 	mi = mutual_information(module)
 	write_mi_output(mi, prefix_output + "_mi.tsv")
 	sys.stderr.write("Plotting results...\n")
-	plot_heatmap(mi,prefix_output+'.png')
-	#plotly_heatmap(mi)
+	if args.heatmap == "plotly":
+		plotly_heatmap(mi, prefix, args.params)
+	elif args.heatmap == "png":
+		plot_heatmap(mi,prefix_output+'.png')
+	else:
+		sys.stderr.write("This format output is not defined in this program. Try png or plotly")
+
 	sys.stderr.write("All the files generated in this program are saved on:\n%s\n" %(prefix_output))
 
 sys.stderr.write("The program is done. See you!\n")
