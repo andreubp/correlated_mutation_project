@@ -30,6 +30,12 @@ def clustalW(infil, config_file, prefix):
 	in a .aln file.
 	"""
 	clustalw_path = parse_config(config_file, "clustalw")
+	try:
+		op_infil = open(infile, "r")
+		op_infil.close()
+	except:
+		raise IOError("Cannot open multifasta %s to perform the MSA" %infile)
+
 	cline = ClustalwCommandline(clustalw_path, infile=infil, align="input", outfile=prefix, seqnos="ON", outorder="input", type="PROTEIN")
 	stdout, stderr = cline()
 
