@@ -160,6 +160,20 @@ def mi_two_f(module1, module2, prefix_output, prefix):
 	sys.stderr.write("\tThe plot has just been created. \n\n")
 	sys.stderr.write("All the files generated in this program are saved on folder:\t%s\n" %(root))
 
+def check_arguments():
+	if args.infile1:
+		if args.multifasta_1 or args.multifasta_2:
+			sys.stderr.write("Error: Cannot input a multifasta (-mfa1/mfa2) and a fasta file (-i1) at the same time.\n")
+			exit(1)
+
+	elif args.infile2:
+		sys.stderr.write("Error: You forget to put -input1 argument.\n")
+		exit(1)
+
+	elif args.multifasta_2 and not args.multifasta_1:
+			sys.stderr.write("Error: You forget to put -multifasta1 argument.\n")
+			exit(1)
+
 def runCoevolution():
 	root = parse_config(args.params, "root")
 	if not args.infile2:
@@ -204,8 +218,6 @@ def runCoevolution():
 				sys.stderr.write("\tClustalW finished correctly.\n\n")
 
 				mi_f(prefix_output, prefix)
-			else:
-				print ("FUCK YOU!") #### RAISE ERROR BLBLABLA
 		else:
 			if args.multifasta_2:
 				sys.stderr.write("Running ClustalW for the %s...\n" %(prefix))
@@ -247,6 +259,7 @@ def runCoevolution():
 
 if __name__ == "__main__":
 	checkDependencies()
+	check_arguments()
 	sys.stderr.write("\n\t\t CORRELATED MUTATIONS TOOL\n\n")
 	sys.stderr.write("Dependencies OK.\n")
 	runCoevolution()

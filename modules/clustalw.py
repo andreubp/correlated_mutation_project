@@ -34,7 +34,7 @@ def clustalW(infil, config_file, prefix):
 		op_infil = open(infil, "r")
 		op_infil.close()
 	except:
-		raise IOError("Cannot open multifasta %s to perform the MSA" %infile)
+		raise IOError("Cannot open multifasta %s to perform the MSA" %infil)
 
 	cline = ClustalwCommandline(clustalw_path, infile=infil, align="input", outfile=prefix, seqnos="ON", outorder="input", type="PROTEIN")
 	stdout, stderr = cline()
