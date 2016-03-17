@@ -30,34 +30,34 @@ def parse_config (config_file, option):
 		for line in op_config:
 			if line.startswith("blast"):
 				line = line.split("\t")
-				db = line[1]
-				evalue = line[2]
+				db = line[1].strip()
+				evalue = line[2].strip()
 				return(db, evalue)
 
 	elif option == "clustalw":
 		for line in op_config:
 			if line.startswith ("clustalw"):
 				line = line.split("\t")
-				clustal_path = line[1]
+				clustal_path = line[1].strip()
 				return (clustal_path)
 
 	elif option == "plotly":
 		for line in op_config:
 			if line.startswith("plotly"):
 				line = line.split("\t")
-				username = line[1]
-				api_key = line[2]
+				username = line[1].strip()
+				api_key = line[2].strip()
 				return (username, api_key)
 
 	elif option == "email":
 		for line in op_config:
 			if line.startswith("Entrez_email"):
 				line = line.split("\t")
-				mail = line[1]
+				mail = line[1].strip()
 				return (mail)
 	elif option == "root":
 		for line in op_config:
 			if line.startswith("root"):
 				line = line.split("\t")
-				root = line[1]
+				root = line[1].strip()
 				return (root)

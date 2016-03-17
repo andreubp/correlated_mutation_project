@@ -77,32 +77,32 @@ def checkDependencies():
 	"""
 	Checks the import of the necessary python modules
 	"""
-	try: 
+	try:
 		import Bio
 		del Bio
 	except ImportError:
 		raise ImportError("ERROR: Unable to import Biopython")
-    
-	try: 
+
+	try:
 		import numpy
 		del numpy
 	except ImportError:
 		raise ImportError("ERROR: Unable to import Numpy")
-    
+
 	if args.heatmap == "plotly":
-		try: 
+		try:
 			import plotly
 			del plotly
 		except ImportError:
 			raise ImportError("ERROR: Unable to import plotly")
 
 	elif args.heatmap == "png":
-		try: 
+		try:
 			import matplotlib
 			del matplotlib
 		except ImportError:
 			raise ImportError("ERROR: Unable to import Matplotlib")
-	else: 
+	else:
 		sys.stderr.write("ERROR: The format specified for the heatmap is no available. Try 'png' or 'plotly'\n")
 		exit(1)
 
@@ -136,7 +136,7 @@ def runCoevolution():
 		mi = mutual_information(transposed= transposed, transposed_2 = transposed_2)
 		write_mi_output(mi, prefix_output + "_mi.tsv")
 		sys.stderr.write("Plotting results...\n")
-		
+
 		if args.heatmap == "plotly":
 			plotly_heatmap(mi, prefix, args.params)
 		elif args.heatmap == "png":
@@ -158,18 +158,19 @@ def runCoevolution():
 		clustalW(prefix_output+".mfa", args.params, prefix_output+".aln")
 		sys.stderr.write("ClustalW finished correctly.\n")
 		module= read_clustalw(prefix_output+".aln")
-		sys.stderr.write("Generating Mutual Information table. You could see it in a few seconds in the next file: %s\n" %(prefix_output+"_mi.tsv"))
+		sys.stderr.write("Generating Mutual Information table...")
 		mi = mutual_information(module)
+		sys.stderr.write(" You could see it in a few seconds in the next file: %s\n" %(prefix_output+"_mi.tsv"))
 		write_mi_output(mi, prefix_output + "_mi.tsv")
 		sys.stderr.write("Plotting results...\n")
-		
+
 		if args.heatmap == "plotly":
 			plotly_heatmap(mi, prefix, args.params)
 		elif args.heatmap == "png":
 			plot_heatmap(mi,prefix_output+'.png')
 		sys.stderr.write("All the files generated in this program are saved on:\n%s\n" %(prefix_output))
 
-	
+
 if __name__ == "__main__":
 	checkDependencies()
 	sys.stderr.write("Dependencies OK\n")
