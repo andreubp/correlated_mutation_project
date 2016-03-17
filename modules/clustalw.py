@@ -31,7 +31,7 @@ def clustalW(infil, config_file, prefix):
 	"""
 	clustalw_path = parse_config(config_file, "clustalw")
 	try:
-		op_infil = open(infile, "r")
+		op_infil = open(infil, "r")
 		op_infil.close()
 	except:
 		raise IOError("Cannot open multifasta %s to perform the MSA" %infile)
