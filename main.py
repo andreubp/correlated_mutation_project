@@ -165,7 +165,7 @@ def runCoevolution():
 	if not args.infile2:
 		if args.infile1:
 			prefix_2 = None
-			s = " only ONE protein sequence"
+			s = "only ONE protein sequence"
 			if not args.outfile:
 				outfile= input_name(args.infile1)
 			else:
@@ -189,9 +189,9 @@ def runCoevolution():
 		prefix_output = root.rstrip() + outfile + "_1"
 		prefix = outfile+"_1"
 		if prefix_2 != None:
-			sys.stderr.write("You have%s into the input with these next prefixes:\t%s\t & \t %s\n\n" %(s, prefix, prefix_2))
+			sys.stderr.write("You have %s into the input with these next prefixes:\t%s\t & \t %s\n\n" %(s, prefix, prefix_2))
 		else:
-			sys.stderr.write("You have%s into the input with this next prefix:\t%s\n\n" %(s, prefix))
+			sys.stderr.write("You have %s into the input with this next prefix:\t%s\n\n" %(s, prefix))
 
 		if args.infile1:
 			if not args.multifasta_1:
@@ -210,7 +210,7 @@ def runCoevolution():
 			if args.multifasta_2:
 				sys.stderr.write("Running ClustalW for the %s...\n" %(prefix))
 				module1=clustalw_f(args.multifasta_1, prefix_output)
-				sys.stderr.write("\tClustalW finished correctly.\n\n")
+				sys.stderr.write("\tClustalW finished correctly.\n")
 				sys.stderr.write("Running ClustalW for the %s...\n" %(prefix_2))
 				module2=clustalw_f(args.multifasta_2, prefix_output_2)
 				sys.stderr.write("\tClustalW finished correctly.\n\n")
@@ -224,6 +224,7 @@ def runCoevolution():
 			outfile = input_name(args.infile1) + "__" + input_name(args.infile2)
 		else:
 			outfile = args.outfile
+		prefix_output_mfa = root.rstrip() + outfile
 		prefix_output = root.rstrip() + outfile+"_1"
 		prefix_output_2 = root.rstrip() +outfile+"_2"
 		prefix = outfile+"_1"
@@ -235,7 +236,7 @@ def runCoevolution():
 		sys.stderr.write("Executing Blast for the %s...\n" %(prefix_2))
 		file2= exec_blast(args.infile2, args.params, prefix_output_2)
 		sys.stderr.write("\tBlast finished correctly.\n")
-		multifasta1, multifasta2 = get_sequences(args.infile1, file1, outfile, args.params, blast_xml_2 = file2, input2 = args.infile2)
+		multifasta1, multifasta2 = get_sequences(args.infile1, file1, prefix_output_mfa, args.params, blast_xml_2 = file2, input2 = args.infile2)
 		sys.stderr.write("Running ClustalW for the %s...\n" %(prefix))
 		module1=clustalw_f(multifasta1, prefix_output)
 		sys.stderr.write("\tClustalW finished correctly.\n\n")

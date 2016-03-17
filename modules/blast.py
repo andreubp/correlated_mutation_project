@@ -52,7 +52,7 @@ def exec_blast(infile, config_file, out_name):
 		input_open.close()
 	except:
 		raise IOError("Cannot open input file %s" %infile)
-		
+
 	if is_fasta(infile) == False:
 			raise TypeError("Input file %s must be in fasta format" %infile)
 	else:
@@ -143,8 +143,8 @@ def get_sequences(input1, blast_xml, output, config_file, blast_xml_2 = False, i
 		filtered_results = [element for element in final_results if element.species in final_species]
 		filtered_results_2 = [element for element in final_results_2 if element.species in final_species]
 
-		print("With the first protein, we found %s hits, and after filtering, %s." % (results_id,len(filtered_results)), file=sys.stderr)
-		print("With the Second protein, we found %s hits, and after filtering, %s." % (results_id_2,len(filtered_results_2)), file=sys.stderr)
+		print("\n\tWith the first protein, we found %s hits, and after filtering, %s." % (results_id,len(filtered_results)), file=sys.stderr)
+		print("\tWith the Second protein, we found %s hits, and after filtering, %s.\n" % (results_id_2,len(filtered_results_2)), file=sys.stderr)
 
 		outfile1 = output +"_1.mfa"
 		op_outfile1 = open(outfile1, 'w')
