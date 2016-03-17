@@ -63,4 +63,5 @@ def parse_config (config_file, option):
 				return (root)
 
 def input_name(inputname):
-	print (os.path.abspath(inputname))
+	path= (os.path.abspath(inputname))
+	return (path.split("/")[-1].split(".")[0])
