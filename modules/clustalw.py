@@ -29,10 +29,8 @@ def clustalW(infil, config_file, prefix):
 	need to especify the path of the clustalW program in our computers in our configuration file.  The MSA is saved
 	in a .aln file.
 	"""
-	#clustalw_path = parse_config(config_file, "clustalw")
-	clustalw_path=r"/Applications/clustalw2"
+	clustalw_path = parse_config(config_file, "clustalw")
 	cline = ClustalwCommandline(clustalw_path, infile=infil, align="input", outfile=prefix, seqnos="ON", outorder="input", type="PROTEIN")
-	assert os.path.isfile(clustalw_path), "Clustal W executable missing"
 	stdout, stderr = cline()
 
 def read_clustalw(clustalw_file):
