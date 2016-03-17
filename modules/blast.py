@@ -25,31 +25,44 @@ from modules.parse_config import *
 
 
 class BlastResult(object):
-	def __init__(self, hit_id, organism, sequence, evalue, coverage):
+	def __init__(self, hit_id, organism, sequence, evalue):
 		self.hit = hit_id
 		self.evalue = evalue
-		self.coverage = coverage
 		self.species = organism
 		self.sequence = sequence
 
-	def trim_coverage(self, cut_off):
-		if self.coverage >= cut_off:
-			return True
+def is_fasta(infile):
+	op_infile = open(infile, "r")
+	for line in op_infile:
+		if line.startswith(">"):
+			fasta = True
 		else:
-			return False
+			fasta = False
+		break
+	return fasta
+	op_infile.close()
 
 def exec_blast(infile, config_file, out_name):
 	"""
 	From a sequence input, and given a configuration file, execute Blast software from NCBI web server and print the result in a xml output file
 	"""
 	db, evalue = parse_config(config_file, "blast")
-	fasta_string = SeqIO.read(infile, format="fasta")
-	result_handle = NCBIWWW.qblast("blastp", db, fasta_string.seq)
-	output= out_name + ".xml"
-	save_file = open(output, "w")
-	save_file.write(result_handle.read())
-	save_file.close()
-	result_handle.close()
+	try:
+		input_open = open(infile, "r")
+		input_open.close()
+	except:
+		raise IOError("Cannot open input file %s" %infile)
+		
+	if is_fasta(infile) == False:
+			raise TypeError("Input file %s must be in fasta format" %infile)
+	else:
+		fasta_string = SeqIO.read(infile, format="fasta")
+		result_handle = NCBIWWW.qblast("blastp", db, fasta_string.seq)
+		output= out_name + ".xml"
+		save_file = open(output, "w")
+		save_file.write(result_handle.read())
+		save_file.close()
+		result_handle.close()
 	return (output)
 
 def parse_blast_XML(blast_xml, config_file):
@@ -65,7 +78,6 @@ def parse_blast_XML(blast_xml, config_file):
 		for align in record.alignments:
 			hit_id = align.hit_id.split("|")
 			prev_eval = 1
-			coverage = align.length / 390 ######arreglar per posar longitud sequencia
 			for hsp in align.hsps:
 				if hsp.expect < prev_eval:
 					prev_eval = hsp.expect
@@ -85,7 +97,7 @@ def parse_blast_XML(blast_xml, config_file):
 				species = str(organism[0] + "_" + organism[1])
 
 			if prev_eval <= float(evalue):
-				yield BlastResult(hit_id[1], species, sequence, prev_eval, coverage)
+				yield BlastResult(hit_id[1], species, sequence, prev_eval)
 
 def get_sequences(input1, blast_xml, output, config_file, blast_xml_2 = False, input2=False):
 	species = set()
@@ -111,7 +123,7 @@ def get_sequences(input1, blast_xml, output, config_file, blast_xml_2 = False, i
 			sentence = "> "+ element.species + "|"+ element.hit + "| \n" + element.sequence + "\n"
 			op_outfile.write(sentence)
 		op_outfile.close()
-		print("%s hits found. After filtering, we have %s hits." % (results_id,len(final_results)), file=sys.stderr)
+		print("\t%s hits found. After filtering, we have %s hits.\n" % (results_id,len(final_results)), file=sys.stderr)
 		return (outfile)
 
 	else:

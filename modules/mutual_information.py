@@ -21,7 +21,9 @@ The authors of this module are Andreu Bofill and Marina Reixachs.
 import os, math, numpy as np
 import plotly.plotly as py, plotly.graph_objs as go, plotly.tools as tls
 import matplotlib.pyplot as plt
+import numpy as np
 from modules.parse_config import *
+
 
 
 def mutual_information(transposed, transposed_2 = False):
@@ -80,6 +82,8 @@ def joint_entropy(column_i, column_j):
 	Calculates the joint entropy for two columns(positions) in the transposed MSA.
 	H(i,j) = -sum_x(sum_y( P(x,y)ln2(P(x,y)) ))
 	"""
+	if len(column_i) != len(column_j):
+		raise IndexError("The two MSA should have the same number of related sequences (same species)")
 	freq_ij = dict()
 	total = len(column_i)
 	entropy = 0
@@ -94,9 +98,12 @@ def joint_entropy(column_i, column_j):
 	for key in freq_ij:
 		freq_ij[key] /= total
 		entropy += freq_ij[key]*math.log(freq_ij[key], 2)
-	return -entropy
+	if entropy != 0.0:
+		return -entropy
+	else: 
+		return entropy
 
-def write_mi_output(mi, output):
+def write_mi_output(mi, output, filtered):
 	"""
 	From the given list of list with the mutual information values writes a tab separated format output such that:
 
@@ -105,14 +112,26 @@ def write_mi_output(mi, output):
 	When the input is a single protein both position columns will refer to the same protein. If two different proteins
 	are given as input, the first position column will refer to positions in the first protein and the second column to
 	positions in the second protein.
+	If a filtered 
 	"""
 
 	op_outfile = open(output, "w")
-	op_outfile.write("###correlated mutations output file\n###Contains mutual information values for each pair of sequences\n\n#pos1\tpos2\tMI\n")
-	for index1 in range(len(mi)):
-		position = mi[index1]
-		for index2 in range(len(position)):
-			op_outfile.write("%d\t%d\t%.5f\n" %(index1 + 1, index2 + 1, position[index2]))
+	op_outfile.write("###correlated mutations output file\n###Contains mutual information values for each pair of sequences\n\n")
+	
+	if filtered == 0.0:
+		op_outfile.write("#pos1\tpos2\tMI\n")
+		for index1 in range(len(mi)):
+			position = mi[index1]
+			for index2 in range(len(position)):
+				op_outfile.write("%d\t%d\t%.5f\n" %(index1 + 1, index2 + 1, position[index2]))
+	else:
+		op_outfile.write("###FILTERING CUT OFF: %.2f\n" %filtered)
+		op_outfile.write("#pos1\tpos2\tMI\n")
+		for index1 in range(len(mi)):
+			position = mi[index1]
+			for index2 in range(len(position)):
+				if position[index2] >= filtered:
+					op_outfile.write("%d\t%d\t%.5f\n" %(index1 + 1, index2 + 1, position[index2]))
 	op_outfile.close()
 
 def plot_heatmap(mi, output):
