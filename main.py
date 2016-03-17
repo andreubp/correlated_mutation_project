@@ -143,6 +143,7 @@ def runCoevolution():
 			plot_heatmap(mi,prefix_output+'.png')
 		sys.stderr.write("All the files generated in this program are saved on:\n%s\n" %(prefix_output))
 	else:
+		input_name(args.infile)
 		root = parse_config(args.params, "root")
 		prefix_output = root.rstrip() + args.outfile
 		prefix = args.outfile
