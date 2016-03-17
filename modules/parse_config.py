@@ -61,3 +61,6 @@ def parse_config (config_file, option):
 				line = line.split("\t")
 				root = line[1].strip()
 				return (root)
+
+def input_name(inputname):
+	print (os.path.abspath(inputname))
