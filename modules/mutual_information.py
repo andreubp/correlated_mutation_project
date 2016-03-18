@@ -3,8 +3,8 @@
 """
 This is the documentation for correlated_mutation_project. The functions below are
 used in the execution of the different paths of main python. The main dependencies
-of these module are the sys, os, math and Bio packages but all of them should be
-present in a correct python instalation.
+of these module are the sys, os, math, numpy, potly and matplotlib packages but 
+all of them should be present in a correct python instalation.
 This module only contain documented functions used in the main script.
 The authors of this module are Andreu Bofill and Marina Reixachs.
 """
@@ -112,7 +112,7 @@ def write_mi_output(mi, output, filtered):
 	When the input is a single protein both position columns will refer to the same protein. If two different proteins
 	are given as input, the first position column will refer to positions in the first protein and the second column to
 	positions in the second protein.
-	If a filtered 
+	If a cut off value is specified it will only retrieve pairs of positions with MI values higher than the cut off.
 	"""
 
 	op_outfile = open(output, "w")
@@ -144,8 +144,6 @@ def plot_heatmap(mi, output):
 	data = np.array(mi)
 	fig, ax = plt.subplots()
 	heatmap = ax.pcolor(data, cmap=plt.cm.jet)
-
-	fig.suptitle('MI heatmap', y= 1.5, fontsize=14, fontweight='bold')
 
 	ax.invert_yaxis()
 	ax.xaxis.tick_top()
