@@ -1,11 +1,11 @@
 #!/usr/local/bin/python3
 
 """
-This is the documentation for correlated_mutation_project. The functions below are
-used in the execution of the different paths of main python. The main dependencies
-of these module are the sys, os, math and Bio packages but all of them should be
-present in a correct python instalation.
-This module only contain documented functions used in the main script.
+This is the documentation for correlated_mutation_project. Both functions below are
+used in the execution of the different paths of main python. The main dependency
+of this module is only os packages.
+This module contain documented functions used in all the other modules that this
+program contain and also in the main script.
 The authors of this module are Andreu Bofill and Marina Reixachs.
 """
 
@@ -63,5 +63,8 @@ def parse_config (config_file, option):
 				return (root)
 
 def input_name(inputname):
+	"""
+	This function is used to extract the name of the input file, to be used if an output name is not given
+	"""
 	path= (os.path.abspath(inputname))
 	return (path.split("/")[-1].split(".")[0])

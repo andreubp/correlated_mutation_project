@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 
                     #####################################
-                    #    correlated_mutation_project    #
+                    #      CORRELATED MUTATION TOOL     #
                     #####################################
 
 ###############################################################################
@@ -10,9 +10,9 @@
 # It includes the possibility of calculing the mutual information scores from #
 # one or two sequence and extrapoled then the correlated mutation between the #
 # different positions of the sequence/s. Finally it allows to plot a Heat-Map #
-# about correlated mutation of each position on sequence.                     #
-# This program accepts one or two inputs with FASTA format or raw sequence    #
-# that allow to do the first step of the program, that's a Blast              #
+# about correlated mutation of each position on sequence with matplot or      #
+# plotly softwares.           												  #
+# This program accepts one or two inputs with FASTA format.                   #
 ###############################################################################
 
                         ########################
@@ -93,9 +93,9 @@ parser.add_argument('-f', '--filter',
 			help='If specified returns only positions with MI values higher than cutt-off value')
 args = parser.parse_args()
 
-def checkDependencies():
+def check_dependencies():
 	"""
-	Checks the import of the necessary python modules
+	Check if the necessary python modules are correct imported
 	"""
 	try:
 		import Bio
@@ -126,12 +126,34 @@ def checkDependencies():
 		sys.stderr.write("ERROR: The format specified for the heatmap is no available. Try 'png' or 'plotly'\n")
 		exit(1)
 
+def check_arguments():
+	"""
+	Check if input/inputs are correctly given
+	"""
+	if args.infile1:
+		if args.multifasta_1 or args.multifasta_2:
+			sys.stderr.write("Error: Cannot input a multifasta (-mfa1/mfa2) and a fasta file (-i1) at the same time.\n")
+			exit(1)
+	elif args.infile2:
+		sys.stderr.write("Error: You forget to put -input1 argument.\n")
+		exit(1)
+	elif args.multifasta_2 and not args.multifasta_1:
+			sys.stderr.write("Error: You forget to put -multifasta1 argument.\n")
+			exit(1)
+
+
 def clustalw_f(multifasta1,prefix_output):
+	"""
+	This function packs all clustalW functions and allows us to reuse code
+	"""
 	clustalW(multifasta1, args.params, prefix_output+".aln")
 	module= read_clustalw(prefix_output+".aln")
 	return (module)
 
 def mi_f(prefix_output, prefix):
+	"""
+	This function packs all mutual information functions and plot options and allows us to reuse code. It is used when we have only one input file
+	"""
 	root = parse_config(args.params, "root")
 	module= read_clustalw(prefix_output+".aln")
 	sys.stderr.write("Generating Mutual Information table...\n")
@@ -147,6 +169,9 @@ def mi_f(prefix_output, prefix):
 	sys.stderr.write("All the files generated in this program are saved on folder:\t%s\n" %(root))
 
 def mi_two_f(module1, module2, prefix_output, prefix):
+	"""
+	This function packs all mutual information functions and plot options and allows us to reuse code. It is used when we have two input file
+	"""
 	root = parse_config(args.params, "root")
 	sys.stderr.write("Generating Mutual Information table...\n")
 	mi = mutual_information(transposed= module1, transposed_2 = module2)
@@ -160,21 +185,10 @@ def mi_two_f(module1, module2, prefix_output, prefix):
 	sys.stderr.write("\tThe plot has just been created. \n\n")
 	sys.stderr.write("All the files generated in this program are saved on folder:\t%s\n" %(root))
 
-def check_arguments():
-	if args.infile1:
-		if args.multifasta_1 or args.multifasta_2:
-			sys.stderr.write("Error: Cannot input a multifasta (-mfa1/mfa2) and a fasta file (-i1) at the same time.\n")
-			exit(1)
-
-	elif args.infile2:
-		sys.stderr.write("Error: You forget to put -input1 argument.\n")
-		exit(1)
-
-	elif args.multifasta_2 and not args.multifasta_1:
-			sys.stderr.write("Error: You forget to put -multifasta1 argument.\n")
-			exit(1)
-
 def runCoevolution():
+	"""
+	Main function of our program. It runs all parts of the program depending on the given input
+	"""
 	root = parse_config(args.params, "root")
 	if not args.infile2:
 		if args.infile1:
@@ -216,7 +230,6 @@ def runCoevolution():
 				sys.stderr.write("Running ClustalW...\n")
 				clustalw_f(multifasta1, prefix_output)
 				sys.stderr.write("\tClustalW finished correctly.\n\n")
-
 				mi_f(prefix_output, prefix)
 		else:
 			if args.multifasta_2:
@@ -250,7 +263,7 @@ def runCoevolution():
 		sys.stderr.write("\tBlast finished correctly.\n")
 		multifasta1, multifasta2 = get_sequences(args.infile1, file1, prefix_output_mfa, args.params, blast_xml_2 = file2, input2 = args.infile2)
 		sys.stderr.write("Running ClustalW for the %s...\n" %(prefix))
-		module1=clustalw_f(multifasta1, prefix_output)
+		module1=clustalw_f(matultifasta1, prefix_output)
 		sys.stderr.write("\tClustalW finished correctly.\n\n")
 		sys.stderr.write("Running ClustalW for the %s...\n" %(prefix_2))
 		module2=clustalw_f(multifasta2, prefix_output_2)
@@ -258,7 +271,7 @@ def runCoevolution():
 		mi_two_f(module1, module2, prefix_output, prefix)
 
 if __name__ == "__main__":
-	checkDependencies()
+	check_dependencies()
 	check_arguments()
 	sys.stderr.write("\n\t\t CORRELATED MUTATIONS TOOL\n\n")
 	sys.stderr.write("Dependencies OK.\n")
